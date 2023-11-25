@@ -42,13 +42,15 @@ data "external" "git_describe" {
   ]
 }
 
+// This infrastructure module is fairly tightly coupled to my homelab
+// Kubernetes cluster. YMMV
 module "basic-deployment" {
   source  = "jdevries3133/basic-deployment/kubernetes"
   version = "3.0.2"
 
-  app_name  = "nc"
-  container = "jdevries3133/nc:${data.external.git_describe.result.output}"
-  domain    = "nc.jackdevries.com"
+  app_name  = "phat-stack"
+  container = "jdevries3133/phat_stack:${data.external.git_describe.result.output}"
+  domain    = "phat-stack.jackdevries.com"
 
   extra_env = {
     SESSION_SECRET = random_password.secret_key.result
