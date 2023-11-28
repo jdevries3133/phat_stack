@@ -2,7 +2,7 @@ terraform {
 
   backend "s3" {
     bucket = "my-sites-terraform-remote-state"
-    key    = "nc-state"
+    key    = "phat-stack-state"
     region = "us-east-2"
   }
 
