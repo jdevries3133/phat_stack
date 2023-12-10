@@ -13,7 +13,7 @@ use serde::Deserialize;
 
 pub async fn root() -> impl IntoResponse {
     components::Page {
-        title: "NC!",
+        title: "PHAT Stack!",
         children: Box::new(components::Home {}),
     }
     .render()
