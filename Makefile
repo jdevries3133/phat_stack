@@ -35,7 +35,7 @@ ifndef CI
 	@# Locally, we want to ensure that `cargo sqlx prepare` was run, otherwise
 	@# the build will fail in CI. So, we'll run an offline build as part of
 	@# our checks
-	SQLX_OFFLINE=true cargo build --features production
+	SQLX_OFFLINE=true cargo build --features enable_smtp_email
 endif
 	cargo clippy -- -D warnings
 	cargo fmt --check
@@ -43,7 +43,7 @@ endif
 	cargo test
 
 sqlx:
-	cargo sqlx prepare -- --features production
+	cargo sqlx prepare -- --features enable_smtp_email
 
 build: setup
 	pnpm run build
@@ -117,7 +117,7 @@ build-container: setup
 	cargo build \
 		--release \
 		--target x86_64-unknown-linux-musl \
-		--features production
+		--features enable_smtp_email
 	docker buildx build --load --platform linux/amd64 -t $(CONTAINER_EXACT_REF) .
 
 proxy-stripe-webhook:
