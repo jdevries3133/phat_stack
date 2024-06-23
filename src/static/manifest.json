@@ -1,0 +1,48 @@
+{
+  "name": "PHAT Stack",
+  "short_name": "PHAT Stack",
+  "icons": [
+    {
+      "src": "/static/xxs-icon",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/xs-icon",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icon",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/large-icon",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/maskable-small-icon",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/maskable-medium-icon",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/maskable-large-icon",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "https://beancount.bot/home"
+}

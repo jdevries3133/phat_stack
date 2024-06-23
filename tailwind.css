@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  position: relative;
+  width: 100vw;
+}
+
 .link {
   @apply text-blue-500 visited:text-purple-500 underline;
 }
@@ -12,23 +17,43 @@
   input[type="password"],
   input[type="email"],
   input[type="checkbox"],
-  input[type="date"] {
+  input[type="date"],
+  select {
     @apply text-white bg-slate-700;
   }
-  input[type="number"],
-  input[type="text"],
-  input[type="password"],
-  input[type="email"],
-  input[type="date"]{
-    @apply rounded;
-  }
   input[type="checkbox"] {
-    @apply text-black bg-white rounded cursor-pointer;
+    @apply text-black bg-white;
   }
   textarea {
     @apply bg-slate-700 text-white;
   }
-  .link:visited {
-    @apply text-yellow-400;
+}
+
+input[type="number"],
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="checkbox"],
+select {
+  @apply rounded;
+}
+input[type="checkbox"] {
+  @apply cursor-pointer;
+}
+
+@keyframes opacity {
+  0% {
+    opacity: 30%;
   }
+  50% {
+    opacity: 50%;
+  }
+  100% {
+    opacity: 30%;
+  }
+}
+
+.htmx-request {
+  animation: opacity 2s ease-in-out infinite;
 }

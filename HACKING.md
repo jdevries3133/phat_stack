@@ -14,6 +14,19 @@ The following ports also must be free on your machine:
 - `5432` for PostgreSQL
 - `8000` for this application
 
+## `.env` File
+
+The `env-template` file shows environment variables that we expect. Note that
+this file is also used for bootstrapping a local PostgreSQL database, so you can
+keep the DB credentials and connection string the same, and a new DB will be
+created with those credentials.
+
+Developing against stripe requires setting up an account, creating products, and
+updating the "price id" to match yours. You can also simply develop without the
+stripe feature enabled by revising the dev script in the Makefile.
+
+## Bootstrapping & Developing 
+
 You will need to bootstrap the app and database by performing on offline
 compilation using `./sqlx-data.json` -- there's a handy make rule to get you
 started;
@@ -29,7 +42,7 @@ live-reload. To run the typical dev scripts, stop the app and run the dev rule:
 make dev
 ```
 
-There are very few unit tests, but you can run them with:
+You can run unit-tests with cargo:
 
 ```
 cargo test
@@ -49,13 +62,6 @@ Additionally, there is a rule for running CI just like it runs in CI!
 make check
 ```
 
-You will notice that there is a pre-push hook in `./githooks` which calls this
-Make rule. I recommend running `git config --local core.hooksPath githooks` to
-setup githooks for your local repo, which will run the checks locally before you
-push, giving some faster feedback. This is only truly crucial if you're given
-permission to push directly to the main branch, though, since CI will run these
-same checks for pull requests anyway.
-
 # Other Database Options
 
 Of course, the application will happily converse with any PostgreSQL instance.
@@ -68,20 +74,17 @@ Note that the application only uses `DATABASE_URL`. The rest of the `POSTGRES_*`
 environment variables are only used in the Makefile and passed to the PostgreSQL
 Docker container during startup.
 
-# Auth & Getting Around
+# Contributing & License
 
-Navigation and flows between routes has generally not yet joined the chat, so
-you need to know where to go if you're running the app locally:
+Keep in mind the notes in [the contribution guide](../CONTRIBUTING.md), and
+[license](../LICENSE). This project is open source but _not_ free, but the tech
+stack behind the website is free and open source, available in the [PHAT stack
+repo](https://github.com/jdevries3133/phat_stack).
 
-- `/authentication/register` to make an account
-- `/authentication/login` to log in if you already did so
-- `/collection/1` to view the one and only default collection, though you'll be
-  redirected to `/authentication/login` if you've not authenticated yet.
-- to logout, if you wish, delete your cookies!
+In general, my intent is to open source any components of this project in the
+tech stack / infrastructure layer, so if there are some new shiny goodies in
+this repository that are missing from PHAT stack, feel free to open a PR into
+PHAT stack to port them over.
 
-Once you get to `/collection/1`, there's a more complete navigation experience
-between the 3 views there:
-
-- main view (`/collection/1`)
-- add page (`/collection/1/new-page`)
-- reorder columns (`/collection/1/prop-order`)
+The primary intent of open sourcing this repository is for it to be a learning
+resource, and for transparency for our users.

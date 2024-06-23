@@ -35,20 +35,23 @@ ifndef CI
 	@# Locally, we want to ensure that `cargo sqlx prepare` was run, otherwise
 	@# the build will fail in CI. So, we'll run an offline build as part of
 	@# our checks
-	SQLX_OFFLINE=true cargo build
+	SQLX_OFFLINE=true cargo build --features production
 endif
 	cargo clippy -- -D warnings
 	cargo fmt --check
 	terraform fmt --check
 	cargo test
 
+sqlx:
+	cargo sqlx prepare -- --features production
+
 build: setup
 	pnpm run build
 	cargo build --release
 
 setup:
-	[[ ! -f ./src/htmx-1.9.9.vendor.js ]] \
-		&& curl -L https://unpkg.com/htmx.org@1.9.9 > src/htmx-1.9.9.vendor.js \
+	[[ ! -f ./src/htmx-1.9.12.vendor.js ]] \
+		&& curl -L https://unpkg.com/htmx.org@1.9.12 > src/htmx-1.9.12.vendor.js \
 		|| true
 ifdef CI
 	npm i -g pnpm
@@ -66,9 +69,10 @@ ifndef CI
 endif
 
 dev: setup
-	npx concurrently --names 'tailwind,cargo' \
+	npx concurrently --names 'tailwind,cargo,stripe' \
 		'pnpm run dev' \
-		"cargo watch -x 'run --features live_reload'"
+		"cargo watch -x 'run --features \"live_reload stripe use_stripe_test_instance localhost_base_url\"'" \
+		'make proxy-stripe-webhook' \
 
 bootstrap: setup _stop-db
 	SQLX_OFFLINE=true cargo build
@@ -110,17 +114,35 @@ shell-db:
 build-container: setup
 	pnpm run build
 	rustup target add x86_64-unknown-linux-musl
-	cargo build --release --target x86_64-unknown-linux-musl
+	cargo build \
+		--release \
+		--target x86_64-unknown-linux-musl \
+		--features production
 	docker buildx build --load --platform linux/amd64 -t $(CONTAINER_EXACT_REF) .
+
+proxy-stripe-webhook:
+	stripe listen --forward-to localhost:8000/stripe-webhook
 
 # Run the above container locally, such that it can talk to the local
 # PostgreSQL database launched by `make _start-db`. We expect here that the
 # local database is already running and the container has already been built.
+#
+# Note: on macOS, you need to change the database host to "host.docker.internal"
+# to allow the container to talk to the local PostgreSQL instance running inside
+# Docker. On Linux, you can add the --net=host flag to the invocation of
+# `docker run` below, to make PostgreSQL at localhost:5432 visible to the
+# container.
+#
+# Note: you can omit stripe API keys if you're not using the stripe feature.
 debug-container:
 	$(ENV) docker run \
 		-e RUST_BACKTRACE=1 \
 		-e DATABASE_URL="$$DATABASE_URL" \
 		-e SESSION_SECRET="$$SESSION_SECRET" \
+		-e STRIPE_API_KEY="$$STRIPE_API_KEY" \
+		-e STRIPE_WEBHOOK_SIGNING_SECRET="$$STRIPE_WEBHOOK_SIGNING_SECRET" \
+		-e SMTP_EMAIL_USERNAME="$$SMTP_EMAIL_USERNAME" \
+		-e SMTP_EMAIL_PASSWORD="$$SMTP_EMAIL_PASSWORD" \
 		-p 8000:8000 \
 		$(CONTAINER_EXACT_REF)
 

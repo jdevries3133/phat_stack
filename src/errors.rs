@@ -12,12 +12,39 @@ use axum::{
 
 /// Generic 500 error if we bubble up out of HTTP request handlers.
 #[derive(Debug)]
-pub struct ServerError(Error);
+pub struct ServerError {
+    /// The actuall error, which will be logged.
+    err: Option<Error>,
+    status: StatusCode,
+    /// Public-facing response message
+    response_body: String,
+}
 impl IntoResponse for ServerError {
     fn into_response(self) -> Response {
-        println!("{:?}", self);
-        (StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong")
-            .into_response()
+        println!("HTTP {} {:?}", self.status, self.err);
+        (self.status, self.response_body).into_response()
+    }
+}
+impl ServerError {
+    /// This can be used for things like bad requests or 404 errors, where
+    /// nothing is really "wrong," it's just the expected beahvior of the
+    /// API.
+    pub fn forbidden(log_msg: &'static str) -> Self {
+        ServerError {
+            err: Some(Error::msg(log_msg)),
+            status: StatusCode::FORBIDDEN,
+            response_body: "Forbidden".into(),
+        }
+    }
+    pub fn bad_request(
+        log_msg: &'static str,
+        response_body: Option<String>,
+    ) -> Self {
+        ServerError {
+            err: Some(Error::msg(log_msg)),
+            status: StatusCode::METHOD_NOT_ALLOWED,
+            response_body: response_body.unwrap_or("bad request".into()),
+        }
     }
 }
 
@@ -29,6 +56,10 @@ where
     E: Into<anyhow::Error>,
 {
     fn from(err: E) -> Self {
-        Self(err.into())
+        Self {
+            err: Some(err.into()),
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+            response_body: "something went wrong".into(),
+        }
     }
 }

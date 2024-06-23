@@ -1,20 +1,16 @@
-use super::{
-    auth, components, components::Component, db_ops, errors::ServerError, htmx,
-    models::AppState, pw, routes::Route, session, session::Session,
-};
+use crate::{prelude::*, htmx, components};
 use anyhow::Result;
 use axum::{
-    extract::State,
     http::{HeaderMap, HeaderValue},
     response::IntoResponse,
-    Form,
 };
+#[cfg(feature = "live_reload")]
 use serde::Deserialize;
 
 pub async fn root() -> impl IntoResponse {
     components::Page {
-        title: "PHAT Stack!",
-        children: Box::new(components::Home {}),
+        title: "PHAT Stack",
+        children: &components::Home {},
     }
     .render()
 }
@@ -57,126 +53,118 @@ pub async fn pong() -> impl IntoResponse {
 pub async fn get_htmx_js() -> impl IntoResponse {
     let mut headers = HeaderMap::new();
     headers.insert(
-        "content-type",
+        "Content-Type",
         HeaderValue::from_str("text/javascript")
             .expect("We can insert text/javascript headers"),
     );
     headers.insert(
-        "cache-control",
-        HeaderValue::from_str("Cache-Control: public, max-age=31536000")
+        "Cache-Control",
+        HeaderValue::from_str("public, max-age=31536000")
             .expect("we can set cache control header"),
     );
-    (headers, include_str!("./htmx-1.9.9.vendor.js"))
+
+    (headers, htmx::get_client_script())
+}
+
+pub async fn get_favicon() -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "Content-Type",
+        HeaderValue::from_str("image/x-icon")
+            .expect("We can insert image/x-icon header"),
+    );
+    (headers, include_bytes!("./static/favicon.ico"))
+}
+
+fn png_controller(bytes: &'static [u8]) -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "Content-Type",
+        HeaderValue::from_str("image/png")
+            .expect("We can insert image/png header"),
+    );
+    (headers, bytes)
+}
+
+pub async fn get_tiny_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/icon-16x16.png"))
+}
+
+pub async fn get_small_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/icon-32x32.png"))
+}
+
+pub async fn get_medium_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/icon-192x192.png"))
+}
+
+pub async fn get_large_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/icon-512x512.png"))
+}
+
+pub async fn get_maskable_small_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/maskable_icon_x72.png"))
+}
+
+pub async fn get_maskable_medium_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/maskable_icon_x128.png"))
+}
+
+pub async fn get_maskable_large_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/maskable_icon_x192.png"))
+}
+
+pub async fn get_apple_icon() -> impl IntoResponse {
+    png_controller(include_bytes!("./static/apple-touch-icon.png"))
+}
+
+pub async fn get_manifest() -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "Content-Type",
+        HeaderValue::from_str("application/manifest+json")
+            .expect("We can insert application/manifest+json header"),
+    );
+    (headers, include_str!("./static/manifest.json"))
+}
+
+pub async fn get_robots_txt() -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "Content-Type",
+        HeaderValue::from_str("text/plain")
+            .expect("We can insert text/plain header"),
+    );
+    (headers, "# beep boop\nUser-agent: *\nAllow: /")
 }
 
 pub async fn user_home(
     headers: HeaderMap,
 ) -> Result<impl IntoResponse, ServerError> {
-    let Session { user, .. } =
-        Session::from_headers(&headers).expect("user is authenticated");
-    let content = Box::new(components::UserHome { user: &user });
+    let session = Session::from_headers_err(&headers, "user home")?;
     let html = components::Page {
         title: "Home Page",
-        children: content,
+        children: &components::PageContainer {
+            children: &components::UserHome {
+                username: &session.username
+            },
+        },
     }
     .render();
 
     Ok(html)
 }
 
-pub async fn get_registration_form(headers: HeaderMap) -> impl IntoResponse {
-    let form = components::RegisterForm {};
+pub async fn void() -> &'static str {
+    ""
+}
 
-    if headers.contains_key("Hx-Request") {
-        form.render()
-    } else {
-        components::Page {
-            title: "Register",
-            children: Box::new(form),
-        }
-        .render()
+pub async fn about() -> impl IntoResponse {
+    components::Page {
+        title: "About",
+        children: &components::PageContainer {
+            children: &components::AboutPage {},
+        },
     }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct RegisterForm {
-    username: String,
-    email: String,
-    password: String,
-    secret_word: String,
-}
-
-pub async fn handle_registration(
-    State(AppState { db }): State<AppState>,
-    Form(form): Form<RegisterForm>,
-) -> Result<impl IntoResponse, ServerError> {
-    let headers = HeaderMap::new();
-    if form.secret_word.to_lowercase() != "blorp" {
-        let register_route = Route::Register;
-        return Ok((
-            headers,
-            format!(
-                r#"<p hx-trigger="load delay:1s" hx-get="{register_route}">Nice try ya chungus</p>"#
-            ),
-        ));
-    };
-    let hashed_pw = pw::hash_new(&form.password);
-    let user =
-        db_ops::create_user(&db, form.username, form.email, &hashed_pw).await?;
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)?
-        .as_secs();
-    let session = session::Session {
-        user,
-        created_at: now,
-    };
-    let headers = session.update_headers(headers);
-    let home = Route::UserHome(Some(&session.user.username)).as_string();
-    let headers = htmx::redirect(headers, &home);
-    Ok((headers, "OK".to_string()))
-}
-
-pub async fn get_login_form(headers: HeaderMap) -> impl IntoResponse {
-    let form = components::LoginForm {};
-
-    if headers.contains_key("Hx-Request") {
-        form.render()
-    } else {
-        components::Page {
-            title: "Login",
-            children: Box::new(form),
-        }
-        .render()
-    }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct LoginForm {
-    /// Username or email
-    identifier: String,
-    password: String,
-}
-
-pub async fn handle_login(
-    State(AppState { db }): State<AppState>,
-    Form(form): Form<LoginForm>,
-) -> Result<impl IntoResponse, ServerError> {
-    let session =
-        auth::authenticate(&db, &form.identifier, &form.password).await;
-    let headers = HeaderMap::new();
-    if let Ok(session) = session {
-        let homepage =
-            Route::UserHome(Some(&session.user.username)).as_string();
-        let headers = session.update_headers(headers);
-        let headers = htmx::redirect(headers, &homepage);
-        Ok((headers, "OK".to_string()))
-    } else {
-        let login_route = Route::Login;
-        Ok((
-            headers,
-            format!(
-                r#"<p hx-trigger="load delay:1s" hx-get="{login_route}">Nice try ya chungus</p>"#
-            ),
-        ))
-    }
+    .render()
 }

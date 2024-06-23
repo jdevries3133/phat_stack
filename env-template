@@ -1,20 +1,33 @@
-# First and foremost, if you're just cloning this to try it out or learn or
-# explore, you do not need to change anything in this file. Just follow the
-# directions in ./HACKING.md.
+# First and foremost take a look at ./HACKING.md to get your development
+# environment setup!
 # ============================================================================
 
 # Note: when running `make debug-container`, change the hostname in the
 # database connection string from localhost:5432 to `host.docker.internal`
-# on macOS. On linux, passing the `--net=host` flag to Docker when we call
-# `docker run` inside the Makefile should allow this same database connection
-# host to work.
-DATABASE_URL=postgres://you:somepassword@localhost:5432/phat_stack_db
+# on macOS. On Linux, pass the `--net=host` flag to Docker when we call
+# `docker run` inside the Makefile in the `start-db` rule.
+DATABASE_URL=postgres://you:somepassword@localhost:5432/phat_stack
 SESSION_SECRET=superdupersecret
 
 # Note: these guys are only used to initialize the PostgreSQL database
 # container with Docker
 POSTGRES_USER=you
-POSTGRES_USERNAME=you
-POSTGRES_HOST=localhost
 POSTGRES_PASSWORD=somepassword
-POSTGRES_DB=phat_stack_db
+POSTGRES_DB=phat_stack
+OPENAI_API_KEY=<your api key goes here>
+STRIPE_API_KEY=<your api key goes here>
+
+### Stripe ###
+#
+# Note that in general, you can omit the stripe environment varaibles if you
+# do not enable the stripe feature. If you don't need stripe, you should
+# probably grep for `feature = "stripe"`, and rip out the stripe code!
+
+# The stripe CLI will print out the signing secret for development when you
+# run `make proxy-stripe-webhook`, and then you'll need to copy and paste it
+# here.
+STRIPE_WEBHOOK_SIGNING_SECRET=<your secret goes here>
+SMTP_EMAIL_USERNAME=<your secret goes here>
+SMTP_EMAIL_PASSWORD=<your secret goes here>
+
+### END Stripe

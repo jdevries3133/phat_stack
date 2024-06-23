@@ -1,29 +1,31 @@
 {
   "db": "PostgreSQL",
-  "70110c383b7af1407cf18775e6765b82504230e636ab7793e8b21de6924fff2e": {
+  "375d5edd228b1196f0a4f39228eee4c127f1df6526f626dd143f5370ba8930ae": {
     "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false
-      ],
+      "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar"
+          "Int4",
+          "Text"
         ]
       }
     },
-    "query": "insert into users (username, email, salt, digest) values ($1, $2, $3, $4)\n        returning id"
+    "query": "insert into password_reset_link (user_id, slug) values ($1, $2)"
   },
-  "8fbb2f266c986f05be884dda779c30e2024fe49e7f8663a6373732628765c5cf": {
+  "48cbf05416b7c8cb95589c62b2983aea6ed5f5b1071d094ed6788f36bd7d0150": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "delete from password_reset_link where user_id = $1"
+  },
+  "54c3be49b0588a6da617da26e99181544dc2b35b16e43454cbed8ea39bf5a4d0": {
     "describe": {
       "columns": [
         {
@@ -40,9 +42,126 @@
           "name": "email",
           "ordinal": 2,
           "type_info": "Varchar"
+        },
+        {
+          "name": "stripe_customer_id",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "subscription_type_id",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
         }
       ],
       "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "select\n                        id,\n                        username,\n                        email,\n                        stripe_customer_id,\n                        subscription_type_id,\n                        created_at\n                    from users\n                    where id = $1"
+  },
+  "54d10572f4886df16a0d30c5ec06d7f5ddbd1ff52a4f7d8ef85a134242564937": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Bool"
+        ]
+      }
+    },
+    "query": "insert into audit_stripe_webhooks (payload, includes_usable_update)\n        values ($1, $2)\n        "
+  },
+  "58f1f3b223bc3818b5657d17367e6f1fc6798db354d30f7cf90fd9e5e831684c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "delete from password_reset_link where slug = $1"
+  },
+  "5cce2f4a9f8febd19e37475f0c57aed7ec4b8ed9e1b0147de310732042726742": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "lock audit_stripe_webhooks"
+  },
+  "7e1bbd30da996015a167adbfd229ee1d9192e36788cbb7f7bbf4d26698ac53e0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
+      }
+    },
+    "query": "update users set salt = $1, digest = $2\n                    where id = $3"
+  },
+  "8a5419494e48457ba6b6c738476579aba071da50a856ed7cf4d32ed0374c3051": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "email",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "stripe_customer_id",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "subscription_type_id",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
         false,
         false,
         false
@@ -53,7 +172,137 @@
         ]
       }
     },
-    "query": "select id, username, email from users\n            where username = $1 or email = $1"
+    "query": "select\n                        id,\n                        username,\n                        email,\n                        stripe_customer_id,\n                        subscription_type_id,\n                        created_at\n                    from users\n                    where username = $1 or email = $1"
+  },
+  "953e23b705f087dfa9af40e8214655edc6960bd73e51a3cb01a986c932cf15c6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "select count(1) from users where username = $1"
+  },
+  "9fe25647157f5d348fd11399a54a2e83b5f7943b8192541d28f9553e323f3be4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "select count(1) from users where email = $1"
+  },
+  "ba3452c8eb32bc14739ee17e1ed1c69a34bbd25a5c58bf6b90df09f232f5a0f8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "select id from users where email = $1"
+  },
+  "cdbb235d9a742314eddf0faea2985c638d4267d559fc93e4e84ef3879d825458": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
+      }
+    },
+    "query": "insert into users\n        (\n            username,\n            email,\n            salt,\n            digest,\n            stripe_customer_id,\n            subscription_type_id\n        )\n         values ($1, $2, $3, $4, $5, $6)\n        returning id, created_at"
+  },
+  "d316655f3cd158482e5f83c4e62246892091dbf55e74ca48bd7d892c1f3f1104": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "update users set subscription_type_id = $1\n        where stripe_customer_id = $2"
+  },
+  "dbe09fd03f87ffcd343b148d625cd90adba6707a5a3375880a594b9ae8ea4625": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "select subscription_type_id id, created_at from users where id = $1"
   },
   "e03e96472e0f78b53e31e86f7702dd80d455475d8c051c4e2284d42f1862403e": {
     "describe": {
@@ -80,5 +329,59 @@
       }
     },
     "query": "SELECT salt, digest FROM users WHERE id = $1"
+  },
+  "ea7979eabc4809357b84ff50151b047d1869093d4f134968c9295ba416c25492": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "slug",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "username",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "select\n            r.user_id user_id,\n            r.slug slug,\n            r.created_at created_at,\n            u.username username\n            from password_reset_link r\n        join users u on u.id = r.user_id\n        where slug = $1"
+  },
+  "f3d328905295377cf81eb8a6f5ba2b0c40f9c04a660a4392d910a56b23b540e7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "update users set\n                username = $1,\n                email = $2,\n                stripe_customer_id = $3,\n                subscription_type_id = $4\n            where id = $5\n                "
   }
 }

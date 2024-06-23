@@ -1,9 +1,19 @@
 //! Cookie-based session, secured by a HMAC signature.
-use super::{crypto, models::User};
+use super::crypto;
+use crate::{
+    config,
+    db_ops::{GetModel, GetUserQuery, UserIdentifer},
+    errors::ServerError,
+    models,
+};
+use anyhow::Result;
 use axum::headers::{HeaderMap, HeaderValue};
 use base64::{engine::general_purpose, Engine as _};
+use chrono::{DateTime, Days, Utc};
+use chrono_tz::Tz;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 
 /// `Session` is signed and serialized into the `Cookie` header when a
 /// [HeaderMap] is passed into the [Session::update_headers()] method. Thus,
@@ -21,10 +31,9 @@ use serde::{Deserialize, Serialize};
 /// also to convert to/from base64 encoding.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Session {
-    pub user: User,
-    /// Unix seconds timestamp when the token was issued. I'll do token
-    /// revocation later.
-    pub created_at: u64,
+    pub user_id: i32,
+    pub username: String,
+    pub created_at: DateTime<Utc>,
 }
 impl Session {
     /// Parse the session from request headers, validating the cookie
@@ -44,11 +53,33 @@ impl Session {
             None
         }
     }
+    /// `err_msg` should identify which handler the error is coming from. Simply
+    /// the name of the handler function is typically the best thing to put
+    /// here.
+    pub fn from_headers_err(
+        headers: &HeaderMap,
+        err_msg: &'static str,
+    ) -> Result<Self, ServerError> {
+        Self::from_headers(headers)
+            .ok_or_else(|| ServerError::forbidden(err_msg))
+    }
     /// Serialize the session into the provided [HeaderMap].
     pub fn update_headers(&self, mut headers: HeaderMap) -> HeaderMap {
         let session_string = self.serialize();
-        let header_value =
-            format!("session={session_string}; Path=/; HttpOnly");
+        let expiry_date = self
+            .created_at
+            .checked_add_days(Days::new(
+                config::SESSION_EXPIRY_TIME_DAYS
+                    .try_into()
+                    .expect("7 can be a u64 too"),
+            ))
+            .expect("heat death of the universe has not happened yet")
+            .with_timezone(&Tz::GMT)
+            .format("%a, %d %b %Y %H:%M:%S %Z");
+
+        let header_value = format!(
+            "session={session_string}; Path=/; HttpOnly; Expires={expiry_date}"
+        );
         headers.insert(
             "Set-Cookie",
             HeaderValue::from_str(&header_value).expect(
@@ -100,6 +131,15 @@ impl Session {
             }
         }
     }
+    pub async fn get_user(&self, db: &PgPool) -> Result<models::User> {
+        models::User::get(
+            db,
+            &GetUserQuery {
+                identifier: UserIdentifer::Id(self.user_id),
+            },
+        )
+        .await
+    }
 }
 
 #[cfg(test)]
@@ -109,21 +149,20 @@ mod tests {
 
     fn get_session() -> Session {
         Session {
-            user: User {
-                id: 1,
-                username: "Jack".to_string(),
-                email: "jack@jack.com".to_string(),
-            },
-            created_at: 0,
+            user_id: 1,
+            username: "tim".to_string(),
+            created_at: DateTime::<Utc>::from_timestamp(0, 0)
+                .expect("that is a valid timestamp"),
         }
     }
 
-    const SERIALIZED_SESSION: &str =
-    "eyJ1c2VyIjp7ImlkIjoxLCJ1c2VybmFtZSI6IkphY2siLCJlbWFpbCI6ImphY2tAamFjay5jb20ifSwiY3JlYXRlZF9hdCI6MH0:tTtL11Cqgbd3jzCWiPinY8oMJUi6TdqOHlhCIo+gyBk";
+    const SERIALIZED_SESSION: &str = "eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRpbSIsImNyZWF0ZWRfYXQiOiIxOTcwLTAxLTAxVDAwOjAwOjAwWiJ9:KzxVEO3TZPXQbtqbomX42mrk1KxPctywwaNaoDVG4Tg";
 
     #[test]
     fn test_serialize_session() {
-        env::set_var("SESSION_SECRET", "foo");
+        unsafe {
+            env::set_var("SESSION_SECRET", "foo");
+        }
 
         let result = &get_session().serialize();
         // little snapshot test
@@ -132,11 +171,13 @@ mod tests {
 
     #[test]
     fn test_deserialize_session() {
-        env::set_var("SESSION_SECRET", "foo");
+        unsafe {
+            env::set_var("SESSION_SECRET", "foo");
+        }
 
         let result = Session::deserialize(&String::from(SERIALIZED_SESSION))
             .expect("result");
         // little snapshot test
-        assert_eq!(result.user.id, get_session().user.id);
+        assert_eq!(result.user_id, get_session().user_id);
     }
 }

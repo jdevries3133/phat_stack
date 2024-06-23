@@ -28,13 +28,37 @@ provider "helm" {
   }
 }
 
+variable "openai_api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "stripe_api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "stripe_webhook_signing_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "smtp_email_username" {
+  type = string
+  sensitive = true
+}
+
+variable "smtp_email_password" {
+  type      = string
+  sensitive = true
+}
+
 resource "random_password" "secret_key" {
   length  = 48
   special = false
 }
 
-
-data "external" "git_describe" {
+data "external" "git_sha" {
   program = [
     "sh",
     "-c",
@@ -42,8 +66,6 @@ data "external" "git_describe" {
   ]
 }
 
-// This infrastructure module is fairly tightly coupled to my homelab
-// Kubernetes cluster. YMMV
 module "basic-deployment" {
   source  = "jdevries3133/basic-deployment/kubernetes"
   version = "3.0.2"
@@ -53,6 +75,11 @@ module "basic-deployment" {
   domain    = "phat-stack.jackdevries.com"
 
   extra_env = {
-    SESSION_SECRET = random_password.secret_key.result
+    SESSION_SECRET                = random_password.secret_key.result
+    OPENAI_API_KEY                = var.openai_api_key
+    STRIPE_API_KEY                = var.stripe_api_key
+    STRIPE_WEBHOOK_SIGNING_SECRET = var.stripe_webhook_signing_secret
+    SMTP_EMAIL_USERNAME           = "jdevries3133@gmail.com"
+    SMTP_EMAIL_PASSWORD           = var.smtp_email_password
   }
 }

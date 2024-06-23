@@ -2,8 +2,10 @@
 //! Auth will authenticate users by fetching user info from the database and
 //! authenticating a user with the provided credentials.
 
-use super::{db_ops, db_ops::DbModel, models, pw, session};
+use super::{pw, Session};
+use crate::{db_ops, db_ops::GetModel, models};
 use anyhow::{bail, Result};
+use chrono::Utc;
 use sqlx::{postgres::PgPool, query_as};
 
 /// We are a bit losey goosey on the identifier for a better user experience.
@@ -19,11 +21,11 @@ pub async fn authenticate(
     db: &PgPool,
     username_or_email: &str,
     password: &str,
-) -> Result<session::Session> {
+) -> Result<Session> {
     let user = models::User::get(
         db,
         &db_ops::GetUserQuery {
-            identifier: username_or_email,
+            identifier: db_ops::UserIdentifer::Identifier(username_or_email),
         },
     )
     .await?;
@@ -40,12 +42,10 @@ pub async fn authenticate(
     .await?;
 
     if pw::check(password, &truth).is_ok() {
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)?
-            .as_secs();
-        Ok(session::Session {
-            user,
-            created_at: now,
+        Ok(Session {
+            user_id: user.id,
+            username: user.username.clone(),
+            created_at: Utc::now(),
         })
     } else {
         bail!("wrong password")
