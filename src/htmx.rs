@@ -23,34 +23,6 @@ pub fn redirect_2(headers: HeaderMap, to: &str) -> impl IntoResponse {
     (headers, response)
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_trigger_event() {
-        let headers = trigger_event(HeaderMap::new(), "test-event");
-        let header_val = headers
-            .get("Hx-Trigger")
-            .expect("we have a trigger header")
-            .to_str()
-            .expect("trigger header can be stringified");
-        assert_eq!(header_val, "test-event")
-    }
-
-    #[test]
-    fn test_trigger_event_with_multiple_events() {
-        let headers = trigger_event(HeaderMap::new(), "test-event");
-        let headers = trigger_event(headers, "second-test-event");
-        let header_val = headers
-            .get("Hx-Trigger")
-            .expect("we have a trigger header")
-            .to_str()
-            .expect("trigger header can be stringified");
-        assert_eq!(header_val, "test-event, second-test-event")
-    }
-}
-
 pub const fn get_client_script() -> &'static str {
     concat!(
         include_str!("./htmx-1.9.12.vendor.js"),

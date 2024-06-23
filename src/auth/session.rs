@@ -160,6 +160,7 @@ mod tests {
 
     #[test]
     fn test_serialize_session() {
+        #[allow(unused_unsafe)]
         unsafe {
             env::set_var("SESSION_SECRET", "foo");
         }
@@ -171,6 +172,7 @@ mod tests {
 
     #[test]
     fn test_deserialize_session() {
+        #[allow(unused_unsafe)]
         unsafe {
             env::set_var("SESSION_SECRET", "foo");
         }

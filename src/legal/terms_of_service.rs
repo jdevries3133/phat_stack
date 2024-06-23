@@ -10,7 +10,8 @@ impl Component for Tos {
                 Put your terms of service here!
             </p>
         </div>
-        "#.into()
+        "#
+        .into()
     }
 }
 

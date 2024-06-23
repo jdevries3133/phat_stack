@@ -6,7 +6,7 @@
 // are and clippy knows more than me, maybe not.
 #![allow(clippy::let_and_return)]
 
-use super::{prelude::*, auth::is_anon};
+use super::{auth::is_anon, prelude::*};
 
 #[cfg(feature = "live_reload")]
 const LIVE_RELOAD_SCRIPT: &str = r#"<script>
@@ -148,7 +148,6 @@ pub struct Home {}
 impl Component for Home {
     fn render(&self) -> String {
         let login_route = Route::Login;
-        let register_route = Route::Register;
         let init_anon = Route::InitAnon;
         let footer = Footer {}.render();
         format!(
@@ -240,7 +239,7 @@ impl Component for Home {
                                             text-xl
                                             font-extrabold
                                             text-white
-                                            my-4
+                                            my-3
                                         "
                                     >Get Started</button>
                                 </div>
@@ -314,7 +313,7 @@ impl Component for ExternalLink<'_> {
 }
 
 pub struct UserHome<'a> {
-    pub username: &'a str
+    pub username: &'a str,
 }
 impl Component for UserHome<'_> {
     fn render(&self) -> String {
@@ -322,7 +321,8 @@ impl Component for UserHome<'_> {
         let log_out = Route::Logout;
         let register_route = Route::Register;
         let register_ui = if is_anon(self.username) {
-            format!(r#"
+            format!(
+                r#"
             <p class="text-sm">
                 You are an anonymous user. It was quick and easy to jump into
                 the app, but you should register for an account to create a
@@ -341,7 +341,8 @@ impl Component for UserHome<'_> {
                     Register
                 </button>
             </a>
-            "#)
+            "#
+            )
         } else {
             "".into()
         };

@@ -1,4 +1,4 @@
-use crate::{prelude::*, htmx, components};
+use crate::{components, htmx, prelude::*};
 use anyhow::Result;
 use axum::{
     http::{HeaderMap, HeaderValue},
@@ -146,7 +146,7 @@ pub async fn user_home(
         title: "Home Page",
         children: &components::PageContainer {
             children: &components::UserHome {
-                username: &session.username
+                username: &session.username,
             },
         },
     }

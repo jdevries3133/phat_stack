@@ -10,7 +10,8 @@ impl Component for PrivacyPolicy {
                 Put your privacy policy here!
             </p>
         </div>
-        "#.into()
+        "#
+        .into()
     }
 }
 

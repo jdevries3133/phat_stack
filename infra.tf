@@ -44,7 +44,7 @@ variable "stripe_webhook_signing_secret" {
 }
 
 variable "smtp_email_username" {
-  type = string
+  type      = string
   sensitive = true
 }
 

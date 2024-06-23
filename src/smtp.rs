@@ -7,6 +7,7 @@
 //! [send_email] will return an error until you open up this file and customize
 //! this!
 
+#[allow(unused_imports)]
 use anyhow::{Error, Result};
 #[allow(unused_imports)]
 #[cfg(feature = "enable_smtp_email")]
