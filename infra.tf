@@ -71,7 +71,7 @@ module "basic-deployment" {
   version = "3.0.2"
 
   app_name  = "phat-stack"
-  container = "jdevries3133/phat_stack:${data.external.git_describe.result.output}"
+  container = "jdevries3133/phat_stack:${data.external.git_sha.result.output}"
   domain    = "phat-stack.jackdevries.com"
 
   extra_env = {
