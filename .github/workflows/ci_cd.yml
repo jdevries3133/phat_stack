@@ -90,6 +90,7 @@ jobs:
           TF_VAR_openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           TF_VAR_stripe_api_key: ${{ secrets.STRIPE_API_KEY }}
           TF_VAR_stripe_webhook_signing_secret: ${{ secrets.STRIPE_WEBHOOK_SIGNING_SECRET }}
+          TF_VAR_smtp_email_username: jdevries3133@gmail.com
           TF_VAR_smtp_email_password: ${{ secrets.SMTP_EMAIL_PASSWORD }}
         run: make deploy
 
