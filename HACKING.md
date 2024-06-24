@@ -73,18 +73,3 @@ other handy config levers.
 Note that the application only uses `DATABASE_URL`. The rest of the `POSTGRES_*`
 environment variables are only used in the Makefile and passed to the PostgreSQL
 Docker container during startup.
-
-# Contributing & License
-
-Keep in mind the notes in [the contribution guide](../CONTRIBUTING.md), and
-[license](../LICENSE). This project is open source but _not_ free, but the tech
-stack behind the website is free and open source, available in the [PHAT stack
-repo](https://github.com/jdevries3133/phat_stack).
-
-In general, my intent is to open source any components of this project in the
-tech stack / infrastructure layer, so if there are some new shiny goodies in
-this repository that are missing from PHAT stack, feel free to open a PR into
-PHAT stack to port them over.
-
-The primary intent of open sourcing this repository is for it to be a learning
-resource, and for transparency for our users.
