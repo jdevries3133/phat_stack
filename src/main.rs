@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
     dotenv().ok();
 
     let db = db_ops::create_pg_pool().await?;
-    // sqlx::migrate!().run(&db).await?;
+    sqlx::migrate!().run(&db).await?;
     let state = models::AppState { db };
 
     let app = routes::get_routes(state.clone()).with_state(state);
