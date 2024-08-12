@@ -101,6 +101,7 @@ fn parse_update(stripe_garbage: &str) -> Option<StripeUpdate> {
         }
     }
 }
+
 pub async fn handle_stripe_webhook(
     State(AppState { db }): State<AppState>,
     headers: HeaderMap,

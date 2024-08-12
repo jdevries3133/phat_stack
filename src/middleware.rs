@@ -1,11 +1,15 @@
 //! Axum middlewares, modeled as async functions.
 
-use super::{auth::Session, config, htmx, models::AppState, routes::Route};
+use super::{
+    auth::Session, config, htmx, models::AppState,
+    routes::Route,
+};
 #[cfg(feature = "stripe")]
 use super::{
     errors::ServerError, models::IdCreatedAt, stripe::SubscriptionTypes,
 };
 use axum::{
+    body::Body,
     extract::State,
     http::{HeaderMap, HeaderValue, Request},
     middleware::Next,
@@ -30,7 +34,7 @@ use sqlx::query_as;
 /// any responses where cache-control is not specify. This is important because
 /// all of my websites run behind Cloudflare, so we need to ensure that
 /// we're being explicit about caching.
-pub async fn html_headers<B>(request: Request<B>, next: Next<B>) -> Response {
+pub async fn html_headers(request: Request<Body>, next: Next) -> Response {
     let mut response = next.run(request).await;
     let headers = response.headers_mut();
 
@@ -69,7 +73,7 @@ pub async fn html_headers<B>(request: Request<B>, next: Next<B>) -> Response {
 /// validating the session at least does not require a database round trip. This
 /// middleware also logs the method, path, and username for authenticated
 /// requests.
-pub async fn auth<B>(request: Request<B>, next: Next<B>) -> Response {
+pub async fn auth(request: Request<Body>, next: Next) -> Response {
     let headers = request.headers();
     let session = Session::from_headers(headers);
 
@@ -109,7 +113,7 @@ pub async fn auth<B>(request: Request<B>, next: Next<B>) -> Response {
     }
 }
 
-pub async fn log<B>(request: Request<B>, next: Next<B>) -> Response {
+pub async fn log(request: Request<Body>, next: Next) -> Response {
     let time = Utc::now().with_timezone(&Tz::US__Eastern);
     let uri = request.uri().path();
     let method = request.method().as_str();
@@ -122,10 +126,10 @@ pub async fn log<B>(request: Request<B>, next: Next<B>) -> Response {
 }
 
 #[cfg(feature = "stripe")]
-pub async fn narc_on_subscriptions<B>(
+pub async fn narc_on_subscriptions(
     State(AppState { db }): State<AppState>,
-    request: Request<B>,
-    next: Next<B>,
+    request: Request<Body>,
+    next: Next,
 ) -> Response {
     let headers = request.headers();
     let session = Session::from_headers(headers);

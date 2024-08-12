@@ -31,11 +31,18 @@ async fn main() -> Result<()> {
     let app = routes::get_routes(state.clone()).with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
-    println!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+
+    axum::serve(
+        tokio::net::TcpListener::bind(&addr)
+            .await
+            .inspect(|_| {
+                println!("listening on {}", addr);
+            })
+            .unwrap_or_else(|e| panic!("Can bind to address {addr} ({e})")),
+        app.into_make_service(),
+    )
+    .await
+    .unwrap();
 
     Ok(())
 }
