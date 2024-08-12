@@ -1,9 +1,6 @@
 //! Axum middlewares, modeled as async functions.
 
-use super::{
-    auth::Session, config, htmx, models::AppState,
-    routes::Route,
-};
+use super::{auth::Session, config, htmx, models::AppState, routes::Route};
 #[cfg(feature = "stripe")]
 use super::{
     errors::ServerError, models::IdCreatedAt, stripe::SubscriptionTypes,
