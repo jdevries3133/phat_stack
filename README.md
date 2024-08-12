@@ -30,9 +30,10 @@ has a restrictive license).
 
 ## Bugs
 
-- there is a home-grown auth framework in here which I certainly use, but should
+- There is a home-grown auth framework in here which I certainly use, but should
   be audited by a security expert (see `mod session`, `mod auth`, `mod crypto`,
-  `mod pw`)
+  `mod pw`). It also has a fairly insecure JWT implementation which does not
+  support refresh tokens and uses long-lived JWTs.
 - I'm not using a templating library; implementers of `Component::render` need
   to beware of XSS sanitization concerns, and call `ammonia::clean` for
   user-provided strings.
