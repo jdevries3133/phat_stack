@@ -77,7 +77,7 @@ impl Route {
             Self::About => "/about".into(),
             Self::Favicon => "/favicon.ico".into(),
             Self::GotoStripePortal => "/stripe-portal".into(),
-            Self::Htmx => "/vendor/htmx-1.9.12".into(),
+            Self::Htmx => "/generated/htmx-2.0.2".into(),
             Self::InitAnon => "/authentication/init-anon".into(),
             Self::Login => "/authentication/login".into(),
             Self::Logout => "/authentication/logout".into(),

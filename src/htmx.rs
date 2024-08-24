@@ -25,7 +25,7 @@ pub fn redirect_2(headers: HeaderMap, to: &str) -> impl IntoResponse {
 
 pub const fn get_client_script() -> &'static str {
     concat!(
-        include_str!("./htmx-1.9.12.vendor.js"),
+        include_str!("./htmx-2.0.2.vendor.js"),
         r#"
         function makeId(length) {
             let result = '';
