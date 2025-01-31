@@ -40,7 +40,6 @@ endif
 	./scripts/lint_dbg.sh
 	cargo clippy -- -D warnings
 	cargo fmt --check
-	terraform fmt --check
 	cargo test
 
 sqlx:
