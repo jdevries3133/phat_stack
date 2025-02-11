@@ -1,6 +1,6 @@
 //! Database operations; squirrel code lives here.
 
-use super::{models, stripe};
+use super::models;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use sqlx::{
@@ -47,19 +47,13 @@ struct Qres {
     id: i32,
     username: String,
     email: String,
-    stripe_customer_id: String,
-    subscription_type_id: i32,
     created_at: DateTime<Utc>,
 }
 fn map_into_user(row: Qres) -> models::User {
     models::User {
-        stripe_subscription_type: stripe::SubscriptionTypes::from_int(
-            row.subscription_type_id,
-        ),
         id: row.id,
         username: row.username,
         email: row.email,
-        stripe_customer_id: row.stripe_customer_id,
         created_at: row.created_at,
     }
 }
@@ -74,8 +68,6 @@ impl<'a> GetModel<GetUserQuery<'a>> for models::User {
                         id,
                         username,
                         email,
-                        stripe_customer_id,
-                        subscription_type_id,
                         created_at
                     from users
                     where id = $1",
@@ -92,8 +84,6 @@ impl<'a> GetModel<GetUserQuery<'a>> for models::User {
                         id,
                         username,
                         email,
-                        stripe_customer_id,
-                        subscription_type_id,
                         created_at
                     from users
                     where username = $1 or email = $1",
@@ -112,15 +102,11 @@ impl SaveModel for models::User {
         query!(
             "update users set
                 username = $1,
-                email = $2,
-                stripe_customer_id = $3,
-                subscription_type_id = $4
-            where id = $5
+                email = $2
+            where id = $3
                 ",
             self.username,
             self.email,
-            self.stripe_customer_id,
-            self.stripe_subscription_type.as_int(),
             self.id
         )
         .execute(db)

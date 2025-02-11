@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "insert into users\n        (\n            username,\n            email,\n            salt,\n            digest,\n            stripe_customer_id,\n            subscription_type_id\n        )\n         values ($1, $2, $3, $4, $5, $6)\n        returning id, created_at",
+  "query": "insert into users\n        (\n            username,\n            email,\n            salt,\n            digest\n        )\n         values ($1, $2, $3, $4)\n        returning id, created_at",
   "describe": {
     "columns": [
       {
@@ -19,9 +19,7 @@
         "Varchar",
         "Varchar",
         "Varchar",
-        "Varchar",
-        "Varchar",
-        "Int4"
+        "Varchar"
       ]
     },
     "nullable": [
@@ -29,5 +27,5 @@
       false
     ]
   },
-  "hash": "cdbb235d9a742314eddf0faea2985c638d4267d559fc93e4e84ef3879d825458"
+  "hash": "b3564b593f0c087627cfa73dd98b08f44d6981faa458d5fbb0761dd393f1ee3e"
 }

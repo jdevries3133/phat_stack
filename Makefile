@@ -1,34 +1,31 @@
 SHELL := /bin/bash
 ENV=source .env &&
-PROJECT_NAME=phat_stack
+DB_CONTAINER_NAME := "phat_stack"
 
 # The registry is presumed to be docker.io, which is the implicit default
 DOCKER_ACCOUNT=jdevries3133
+CONTAINER_NAME=phat_stack
 ifdef GITHUB_SHA
 	TAG=$(GITHUB_SHA)
 else
 	TAG=$(shell git rev-parse HEAD)
 endif
-CONTAINER_QUALNAME=$(DOCKER_ACCOUNT)/$(PROJECT_NAME)
-CONTAINER_EXACT_REF=$(DOCKER_ACCOUNT)/$(PROJECT_NAME):$(TAG)
+CONTAINER_QUALNAME=$(DOCKER_ACCOUNT)/$(CONTAINER_NAME)
+CONTAINER_EXACT_REF=$(DOCKER_ACCOUNT)/$(CONTAINER_NAME):$(TAG)
 
+.PHONY: build
+.PHONY: check
+.PHONY: setup
+.PHONY: dev
+.PHONY: bootstrap
+.PHONY: deploy
 .PHONY: _start-db
 .PHONY: _stop-db
-.PHONY: backup-prod
-.PHONY: bootstrap
-.PHONY: build
-.PHONY: build-container
-.PHONY: check
-.PHONY: debug-container
-.PHONY: deploy
-.PHONY: dev
-.PHONY: proxy-prod-db
-.PHONY: push-container
-.PHONY: push-container
-.PHONY: setup
-.PHONY: shell-db
-.PHONY: sqlx
 .PHONY: watch-db
+.PHONY: shell-db
+.PHONY: build-container
+.PHONY: debug-container
+.PHONY: push-container
 
 check: setup
 ifdef CI
@@ -43,6 +40,7 @@ endif
 	./scripts/lint_dbg.sh
 	cargo clippy -- -D warnings
 	cargo fmt --check
+	terraform fmt --check
 	cargo test
 
 sqlx:
@@ -93,7 +91,7 @@ endif
 
 _start-db:
 	$(ENV) docker run \
-        --name $(PROJECT_NAME) \
+        --name $(DB_CONTAINER_NAME) \
         -e POSTGRES_DB="$$POSTGRES_DB" \
         -e POSTGRES_USER="$$POSTGRES_USER" \
         -e POSTGRES_PASSWORD="$$POSTGRES_PASSWORD" \
@@ -102,25 +100,15 @@ _start-db:
         postgres:15
 
 _stop-db:
-	docker kill $(PROJECT_NAME) || true
-	docker rm $(PROJECT_NAME) || true
+	docker kill $(DB_CONTAINER_NAME) || true
+	docker rm $(DB_CONTAINER_NAME) || true
 
 watch-db:
-	docker logs -f $(PROJECT_NAME)
+	docker logs -f $(DB_CONTAINER_NAME)
 
 shell-db:
 	$(ENV) PGPASSWORD=$$POSTGRES_PASSWORD \
 		psql -U "$$POSTGRES_USER" -h 0.0.0.0 $$POSTGRES_DB
-
-proxy-prod-db:
-	kubectl -n $(PROJECT_NAME) port-forward service/db-postgresql 5433:5432
-
-backup-prod:
-	kubectl exec \
-		-n $(PROJECT_NAME) \
-		pod/db-postgresql-0 \
-		-- /bin/sh -c "pg_dump postgresql://$(PROJECT_NAME):\$$POSTGRES_PASSWORD@127.0.0.1:5432/$(PROJECT_NAME)" \
-		> ~/Desktop/$(PROJECT_NAME)_backups/backup-$(shell date '+%m-%d-%Y__%H:%M:%S').sql
 
 build-container: setup
 	pnpm run build
@@ -131,6 +119,8 @@ build-container: setup
 		--features enable_smtp_email
 	docker buildx build --load --platform linux/amd64 -t $(CONTAINER_EXACT_REF) .
 
+proxy-stripe-webhook:
+	stripe listen --forward-to localhost:8000/stripe-webhook
 
 # Run the above container locally, such that it can talk to the local
 # PostgreSQL database launched by `make _start-db`. We expect here that the
@@ -157,3 +147,8 @@ debug-container:
 
 push-container: build-container
 	docker push $(CONTAINER_EXACT_REF)
+
+# I use this with vim `:read !make migration-cat` to view all migration files
+# together in a single file.
+migration-cat:
+	find migrations | grep ".sql$$" | xargs cat
