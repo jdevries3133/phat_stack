@@ -71,12 +71,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-           terraform_version: "^1.10"
-           terraform_wrapper: false
-
       - name: terraform cache
         uses: actions/cache@v4
         with:
@@ -108,7 +102,7 @@ jobs:
         #
         # Ex: https://github.com/jdevries3133/calcount/actions/runs/7469335297/job/20326309777
       - name: maybe save nonpersisted tfstate
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: errored-tfstate
           path: errored.tfstate

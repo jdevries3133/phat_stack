@@ -36,16 +36,6 @@ impl ServerError {
             response_body: "Forbidden".into(),
         }
     }
-    pub fn bad_request(
-        log_msg: &'static str,
-        response_body: Option<String>,
-    ) -> Self {
-        ServerError {
-            err: Some(Error::msg(log_msg)),
-            status: StatusCode::METHOD_NOT_ALLOWED,
-            response_body: response_body.unwrap_or("bad request".into()),
-        }
-    }
 }
 
 /// This enables using `?` on functions that return `Result<_, anyhow::Error>`

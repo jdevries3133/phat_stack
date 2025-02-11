@@ -18,7 +18,6 @@ mod models;
 mod prelude;
 mod routes;
 mod smtp;
-mod stripe;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -28,7 +27,7 @@ async fn main() -> Result<()> {
     sqlx::migrate!().run(&db).await?;
     let state = models::AppState { db };
 
-    let app = routes::get_routes(state.clone()).with_state(state);
+    let app = routes::get_routes().with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
 
