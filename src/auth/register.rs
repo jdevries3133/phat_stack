@@ -149,7 +149,6 @@ pub struct RegisterFormPayload {
     password: String,
 }
 
-#[axum_macros::debug_handler]
 pub async fn handle_registration(
     State(AppState { db }): State<AppState>,
     headers: HeaderMap,

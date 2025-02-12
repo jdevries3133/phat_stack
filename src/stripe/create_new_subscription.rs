@@ -1,10 +1,12 @@
 //! Interface to the stripe API
 
+#[cfg(feature = "stripe")]
 use super::env::get_b64_encoded_token_from_env;
 #[cfg(feature = "stripe")]
 use crate::config;
 use crate::prelude::*;
 use anyhow::Result as Aresult;
+#[cfg(feature = "stripe")]
 use reqwest::Client;
 use serde::Serialize;
 
@@ -13,6 +15,12 @@ struct BillingPortalSession {
     id: String,
 }
 
+#[cfg(not(feature = "stripe"))]
+pub async fn create_customer(_name: &str, _email: &str) -> Aresult<String> {
+    Ok("".into())
+}
+
+#[cfg(feature = "stripe")]
 /// Returns the stripe customer ID
 pub async fn create_customer(name: &str, email: &str) -> Aresult<String> {
     let url = "https://api.stripe.com/v1/customers";
