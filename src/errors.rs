@@ -36,6 +36,7 @@ impl ServerError {
             response_body: "Forbidden".into(),
         }
     }
+    #[cfg(feature = "stripe")]
     pub fn bad_request(
         log_msg: &'static str,
         response_body: Option<String>,

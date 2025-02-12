@@ -28,6 +28,7 @@ pub async fn create_customer(name: &str, email: &str) -> Aresult<String> {
     Ok(response.id)
 }
 
+#[cfg(feature = "stripe")]
 #[derive(Debug, Serialize)]
 struct BillingPortalRequest {
     customer: String,

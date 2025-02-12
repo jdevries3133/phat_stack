@@ -40,7 +40,7 @@ pub async fn init_anon(
     let response_headers = HeaderMap::new();
     let headers = session.update_headers(response_headers);
 
-    Ok(htmx::redirect_2(headers, &Route::UserHome.as_string()))
+    Ok(htmx::redirect(headers, &Route::UserHome.as_string()))
 }
 
 pub fn is_anon(username: &str) -> bool {

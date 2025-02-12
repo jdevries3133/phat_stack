@@ -189,10 +189,10 @@ pub async fn narc_on_subscriptions(
 }
 
 #[cfg(not(feature = "stripe"))]
-pub async fn narc_on_subscriptions<B>(
+pub async fn narc_on_subscriptions(
     _: State<AppState>,
-    request: Request<B>,
-    next: Next<B>,
+    request: Request<Body>,
+    next: Next,
 ) -> Response {
     next.run(request).await
 }
