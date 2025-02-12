@@ -68,7 +68,7 @@ data "external" "git_sha" {
 
 module "basic-deployment" {
   source  = "jdevries3133/basic-deployment/kubernetes"
-  version = "3.0.2"
+  version = "3.2.0"
 
   app_name  = "phat-stack"
   container = "jdevries3133/phat_stack:${data.external.git_sha.result.output}"
