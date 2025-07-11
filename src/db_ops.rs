@@ -1,7 +1,6 @@
 //! Database operations; squirrel code lives here.
 
-use super::models;
-use anyhow::Result;
+use crate::{err::Result, models};
 use chrono::{DateTime, Utc};
 use sqlx::{
     postgres::{PgPool, PgPoolOptions},

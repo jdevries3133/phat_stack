@@ -7,8 +7,7 @@
 //! [send_email] will return an error until you open up this file and customize
 //! this!
 
-#[allow(unused_imports)]
-use anyhow::{Error, Result};
+use crate::err::Result;
 #[allow(unused_imports)]
 #[cfg(feature = "enable_smtp_email")]
 use lettre::{
@@ -22,9 +21,7 @@ use std::env;
 #[allow(unused_variables)]
 #[cfg(feature = "enable_smtp_email")]
 pub async fn send_email(to: &str, subject: &str, msg: &str) -> Result<()> {
-    Err(Error::msg(
-        "hard-coded values in send_email must be adjusted",
-    ))
+    panic!("hard-coded values in send_email must be adjusted");
     // let email = Message::builder()
     //     .from("yoursite.example.com <noreply@example.com>".parse()?)
     //     .reply_to("yoursite.example.com <noreply@example.com>".parse()?)

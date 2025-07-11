@@ -11,7 +11,6 @@ localhost_base_url = []
 
 [dependencies]
 ammonia = "3.3.0"
-anyhow = "1.0.69"
 async-trait = "0.1.73"
 axum = "0.7.5"
 axum-macros = "0.4.1"
@@ -19,12 +18,14 @@ base64 = "0.21.2"
 chrono = { version = "0.4.26", features = ["serde"] }
 chrono-tz = { version = "0.8.4", features = ["serde"] }
 dotenvy = "0.15.7"
+env_logger = "0.11.8"
 futures = "0.3.28"
 futures-util = "0.3.29"
 hex = "0.4.3"
 hmac = "0.12.1"
 hyper = "0.14.27"
 lettre = { version = "0.11.2", default-features = false, features = [ "builder", "hostname", "pool", "smtp-transport", "tokio1-rustls-tls" ] }
+log = "0.4.27"
 markdown = "1.0.0-alpha.12"
 rand = "0.8.5"
 regex = "1.9.1"

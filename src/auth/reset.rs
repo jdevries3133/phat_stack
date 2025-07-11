@@ -66,7 +66,7 @@ pub struct ResetPayload {
 pub async fn handle_pw_reset_request(
     State(AppState { db }): State<AppState>,
     Form(ResetPayload { email }): Form<ResetPayload>,
-) -> Result<impl IntoResponse, ServerError> {
+) -> Result<impl IntoResponse> {
     struct Qres {
         id: i32,
     }
@@ -168,7 +168,7 @@ pub async fn handle_password_reset(
     State(AppState { db }): State<AppState>,
     Path(slug): Path<String>,
     Form(NewPassword { password }): Form<NewPassword>,
-) -> Result<impl IntoResponse, ServerError> {
+) -> Result<impl IntoResponse> {
     struct ResetToken {
         user_id: i32,
         username: String,

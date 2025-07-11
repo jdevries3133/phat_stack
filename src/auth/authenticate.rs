@@ -3,8 +3,11 @@
 //! authenticating a user with the provided credentials.
 
 use super::{pw, Session};
-use crate::{db_ops, db_ops::GetModel, models};
-use anyhow::{bail, Result};
+use crate::{
+    db_ops::{self, GetModel},
+    err::{Error, Result},
+    models,
+};
 use chrono::Utc;
 use sqlx::{postgres::PgPool, query_as};
 
@@ -48,6 +51,9 @@ pub async fn authenticate(
             created_at: Utc::now(),
         })
     } else {
-        bail!("wrong password")
+        Err(Error::default()
+            .wrap(crate::err::Oops::Placeholder)
+            .because("wrong password".into())
+            .bad_request())
     }
 }

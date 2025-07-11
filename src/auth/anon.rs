@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub async fn init_anon(
     State(AppState { db }): State<AppState>,
     headers: HeaderMap,
-) -> Result<impl IntoResponse, ServerError> {
+) -> Result<impl IntoResponse> {
     let session = match Session::from_headers(&headers) {
         Some(ses) => ses,
         None => {

@@ -147,11 +147,12 @@ pub struct RegisterFormPayload {
     password: String,
 }
 
+#[axum_macros::debug_handler]
 pub async fn handle_registration(
     State(AppState { db }): State<AppState>,
     headers: HeaderMap,
     Form(form): Form<RegisterFormPayload>,
-) -> Result<impl IntoResponse, ServerError> {
+) -> Result<impl IntoResponse> {
     let session = Session::from_headers(&headers);
     let headers = HeaderMap::new();
     let hashed_pw = pw::hash_new(&form.password);
@@ -242,7 +243,7 @@ pub async fn create_user(
     username: String,
     email: String,
     pw: &pw::HashedPw,
-) -> Aresult<User> {
+) -> Result<User> {
     let query_return = query_as!(
         IdCreatedAt,
         "insert into users
@@ -273,7 +274,7 @@ pub async fn create_user(
 async fn is_username_available(
     db: impl PgExecutor<'_>,
     username: &str,
-) -> Aresult<bool> {
+) -> Result<bool> {
     struct Qres {
         count: Option<i64>,
     }
@@ -290,7 +291,7 @@ async fn is_username_available(
 async fn is_email_available(
     db: impl PgExecutor<'_>,
     email: &str,
-) -> Aresult<bool> {
+) -> Result<bool> {
     struct Qres {
         count: Option<i64>,
     }

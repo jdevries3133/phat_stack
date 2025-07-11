@@ -89,9 +89,7 @@ impl Component for LoginForm {
     }
 }
 
-pub async fn get_login_form(
-    headers: HeaderMap,
-) -> Result<impl IntoResponse, ServerError> {
+pub async fn get_login_form(headers: HeaderMap) -> Result<impl IntoResponse> {
     let session = Session::from_headers(&headers);
     let form = Page {
         title: "Login",
@@ -127,7 +125,7 @@ pub async fn get_login_form(
     })
 }
 
-pub async fn logout() -> Result<impl IntoResponse, ServerError> {
+pub async fn logout() -> Result<impl IntoResponse> {
     let login = Route::Login;
     let mut headers = HeaderMap::new();
     headers.insert(
@@ -149,7 +147,7 @@ pub struct LoginFormPayload {
 pub async fn handle_login(
     State(AppState { db }): State<AppState>,
     Form(form): Form<LoginFormPayload>,
-) -> Result<impl IntoResponse, ServerError> {
+) -> Result<impl IntoResponse> {
     let session = authenticate(&db, &form.identifier, &form.password).await;
     let headers = HeaderMap::new();
     if let Ok(session) = session {

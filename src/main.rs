@@ -1,6 +1,5 @@
 //! A GPT-powered calorie counter.
 
-use anyhow::Result;
 use dotenvy::dotenv;
 use std::net::SocketAddr;
 
@@ -9,7 +8,7 @@ mod components;
 mod config;
 mod controllers;
 mod db_ops;
-mod errors;
+mod err;
 mod html_sanitize;
 mod htmx;
 mod legal;
@@ -20,8 +19,9 @@ mod routes;
 mod smtp;
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    dotenv().ok();
+async fn main() -> Result<(), err::Error> {
+    dotenv().expect("can perform dotenv init");
+    env_logger::init();
 
     let db = db_ops::create_pg_pool().await?;
     sqlx::migrate!().run(&db).await?;

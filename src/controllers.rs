@@ -1,5 +1,4 @@
 use crate::{components, htmx, prelude::*};
-use anyhow::Result;
 use axum::{
     http::{HeaderMap, HeaderValue},
     response::IntoResponse,
@@ -138,9 +137,7 @@ pub async fn get_robots_txt() -> impl IntoResponse {
     (headers, "# beep boop\nUser-agent: *\nAllow: /")
 }
 
-pub async fn user_home(
-    headers: HeaderMap,
-) -> Result<impl IntoResponse, ServerError> {
+pub async fn user_home(headers: HeaderMap) -> Result<impl IntoResponse> {
     let session = Session::from_headers_err(&headers, "user home")?;
     let html = components::Page {
         title: "Home Page",

@@ -1,7 +1,9 @@
 //! Cookie-based session, secured by a HMAC signature.
 use super::crypto;
-use crate::{config, errors::ServerError};
-use anyhow::Result;
+use crate::{
+    config,
+    err::{Error, Oops, Result},
+};
 use axum::http::{HeaderMap, HeaderValue};
 use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, Days, Utc};
@@ -49,9 +51,13 @@ impl Session {
     pub fn from_headers_err(
         headers: &HeaderMap,
         err_msg: &'static str,
-    ) -> Result<Self, ServerError> {
-        Self::from_headers(headers)
-            .ok_or_else(|| ServerError::forbidden(err_msg))
+    ) -> Result<Self> {
+        Self::from_headers(headers).ok_or_else(|| {
+            Error::default()
+                .wrap(Oops::Placeholder)
+                .because(err_msg.into())
+                .bad_request()
+        })
     }
     /// Serialize the session into the provided [HeaderMap].
     pub fn update_headers(&self, mut headers: HeaderMap) -> HeaderMap {
@@ -89,7 +95,7 @@ impl Session {
 
         session
     }
-    fn deserialize(cookie: &str) -> Result<Self, &'static str> {
+    fn deserialize(cookie: &str) -> std::result::Result<Self, &'static str> {
         let parts: Vec<&str> = cookie.split(':').collect();
         if parts.len() != 2 {
             Err("Invalid session")

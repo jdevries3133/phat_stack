@@ -6,7 +6,7 @@
 //! so please use long and secure passwords, and PRs to fix this are very
 //! welcome!
 
-use anyhow::{bail, Result};
+use crate::err::{Error, Result};
 use base64::{engine::general_purpose, Engine};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
@@ -58,7 +58,10 @@ pub fn check(pw: &str, truth: &HashedPw) -> Result<()> {
     if user_input_digest == truth.digest {
         Ok(())
     } else {
-        bail!("passwords do not match")
+        Err(Error::default()
+            .wrap(crate::err::Oops::Placeholder)
+            .because("wrong password".into())
+            .bad_request())
     }
 }
 
