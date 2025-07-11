@@ -277,26 +277,6 @@ impl Component for Home {
         )
     }
 }
-pub struct ExternalLink<'a> {
-    pub href: &'a str,
-    pub children: Box<dyn Component>,
-}
-impl Component for ExternalLink<'_> {
-    fn render(&self) -> String {
-        let children = self.children.render();
-        let href = clean(self.href);
-        format!(
-            r#"
-            <a href={href}>
-                {children}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 inline">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                </svg>
-            </a>
-            "#
-        )
-    }
-}
 
 pub struct UserHome<'a> {
     pub username: &'a str,
@@ -344,39 +324,6 @@ impl Component for UserHome<'_> {
     }
 }
 
-pub struct Saved<'a> {
-    pub message: &'a str,
-}
-impl Component for Saved<'_> {
-    fn render(&self) -> String {
-        let void = Route::Void;
-        let message = clean(self.message);
-        format!(
-            r##"
-            <div
-                hx-get="{void}"
-                hx-trigger="load delay:2s"
-                class="fixed top-2 my-2 bg-slate-200 dark:bg-emerald-800 p-2
-                rounded-xl"
-                >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="inline bg-emerald-100 dark:bg-emerald-600 p-2
-                    rounded-full w-8 h-8"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                {message}
-            </div>
-            "##
-        )
-    }
-}
-
 pub struct AboutPage;
 impl Component for AboutPage {
     fn render(&self) -> String {
@@ -389,41 +336,6 @@ impl Component for AboutPage {
                 <p>
                     Tell the world about your app!
                 </p>
-            </div>
-            "#
-        )
-    }
-}
-
-pub struct AnonWarning;
-impl Component for AnonWarning {
-    fn render(&self) -> String {
-        let register = Route::Register;
-        format!(
-            r#"
-            <div class="flex items-center justify-center">
-                <a href="{register}">
-                    <div
-                        class="text-black text-xs inline-block bg-yellow-100
-                        p-1 rounded-lg my-2 max-w-prose"
-                    >
-                        <h1 class="text-lg font-bold text-center">
-                            Anon Warning
-                        </h1>
-                        <p class="text-base">
-                            You're still registered as an anonymous user, which
-                            means that you haven't shared a username, email, or
-                            password. If you reset your cookies, move to a
-                            different device, or loose your device, your account
-                            cannot be recovered! Click here to register your
-                            account so that you can create a password, login on
-                            multiple devices, or use your email to recover your
-                            account in case you forget your password.
-                        </p>
-                        <p class="text-lg">Click here to register!</p
-                        >
-                    </div>
-                </a>
             </div>
             "#
         )

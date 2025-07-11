@@ -1,5 +1,5 @@
 use super::{pw::hash_new, register::create_user};
-use crate::{config, htmx, prelude::*};
+use crate::{htmx, prelude::*};
 use chrono::Days;
 use regex::Regex;
 use uuid::Uuid;
@@ -15,15 +15,7 @@ pub async fn init_anon(
             let username = format!("anon-{uuid}");
             let email = format!("anon-{uuid}@example.com");
             let password = hash_new(&Uuid::new_v4().to_string());
-            let user = create_user(
-                &db,
-                username,
-                email,
-                &password,
-                "".to_string(),
-                SubscriptionTypes::FreeTrial(config::FREE_TRIAL_DURATION),
-            )
-            .await?;
+            let user = create_user(&db, username, email, &password).await?;
             Session {
                 user_id: user.id,
                 username: user.username,

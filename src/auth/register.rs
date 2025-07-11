@@ -1,13 +1,11 @@
 use super::pw;
 use crate::{
     components::Span,
-    config,
     db_ops::{GetModel, GetUserQuery, SaveModel},
     html_sanitize::encode_quotes,
     htmx,
     models::{IdCreatedAt, User},
     prelude::*,
-    stripe,
 };
 use ammonia::clean;
 use axum::http::StatusCode;
@@ -158,9 +156,6 @@ pub async fn handle_registration(
     let headers = HeaderMap::new();
     let hashed_pw = pw::hash_new(&form.password);
 
-    let stripe_id =
-        stripe::create_customer(&form.username, &form.email).await?;
-
     let (is_username_available, is_email_available) = join![
         is_username_available(&db, &form.username),
         is_email_available(&db, &form.email)
@@ -223,37 +218,14 @@ pub async fn handle_registration(
 
                 anon_user.username = form.username;
                 anon_user.email = form.email;
-                anon_user.stripe_customer_id = stripe_id;
                 anon_user.save(&db).await?;
 
                 anon_user
             } else {
-                create_user(
-                    &db,
-                    form.username,
-                    form.email,
-                    &hashed_pw,
-                    stripe_id,
-                    stripe::SubscriptionTypes::FreeTrial(
-                        config::FREE_TRIAL_DURATION,
-                    ),
-                )
-                .await?
+                create_user(&db, form.username, form.email, &hashed_pw).await?
             }
         }
-        None => {
-            create_user(
-                &db,
-                form.username,
-                form.email,
-                &hashed_pw,
-                stripe_id,
-                stripe::SubscriptionTypes::FreeTrial(
-                    config::FREE_TRIAL_DURATION,
-                ),
-            )
-            .await?
-        }
+        None => create_user(&db, form.username, form.email, &hashed_pw).await?,
     };
     let session = Session {
         user_id: user.id,
@@ -270,8 +242,6 @@ pub async fn create_user(
     username: String,
     email: String,
     pw: &pw::HashedPw,
-    stripe_customer_id: String,
-    subscription_type: stripe::SubscriptionTypes,
 ) -> Aresult<User> {
     let query_return = query_as!(
         IdCreatedAt,
@@ -280,18 +250,14 @@ pub async fn create_user(
             username,
             email,
             salt,
-            digest,
-            stripe_customer_id,
-            subscription_type_id
+            digest
         )
-         values ($1, $2, $3, $4, $5, $6)
+         values ($1, $2, $3, $4)
         returning id, created_at",
         username,
         email,
         pw.salt,
         pw.digest,
-        stripe_customer_id,
-        subscription_type.as_int()
     )
     .fetch_one(db)
     .await?;
@@ -301,8 +267,6 @@ pub async fn create_user(
         created_at: query_return.created_at,
         username,
         email,
-        stripe_customer_id,
-        stripe_subscription_type: subscription_type,
     })
 }
 

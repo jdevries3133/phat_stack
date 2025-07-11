@@ -24,7 +24,6 @@ has a restrictive license).
   or similar, and even less compared to a Laraval/Django setup where you might
   have an ORM and/or a templating language.
 - PWA-ready
-- Stripe integration hath been integrated
 - support for anonymous users enables very low-friction conversion (see
   [beancount.bot](https://beancount.bot) for a live example)
 

@@ -70,10 +70,9 @@ ifndef CI
 endif
 
 dev: setup
-	npx concurrently --names 'tailwind,cargo,stripe' \
+	npx concurrently --names 'tailwind,cargo' \
 		'pnpm run dev' \
-		"cargo watch -x 'run --features \"live_reload stripe use_stripe_test_instance localhost_base_url\"'" \
-		'make proxy-stripe-webhook' \
+		"cargo watch -x 'run --features \"live_reload localhost_base_url\"'" \
 
 bootstrap: setup _stop-db
 	SQLX_OFFLINE=true cargo build
@@ -141,15 +140,11 @@ build-container: setup
 # Docker. On Linux, you can add the --net=host flag to the invocation of
 # `docker run` below, to make PostgreSQL at localhost:5432 visible to the
 # container.
-#
-# Note: you can omit stripe API keys if you're not using the stripe feature.
 debug-container:
 	$(ENV) docker run \
 		-e RUST_BACKTRACE=1 \
 		-e DATABASE_URL="$$DATABASE_URL" \
 		-e SESSION_SECRET="$$SESSION_SECRET" \
-		-e STRIPE_API_KEY="$$STRIPE_API_KEY" \
-		-e STRIPE_WEBHOOK_SIGNING_SECRET="$$STRIPE_WEBHOOK_SIGNING_SECRET" \
 		-e SMTP_EMAIL_USERNAME="$$SMTP_EMAIL_USERNAME" \
 		-e SMTP_EMAIL_PASSWORD="$$SMTP_EMAIL_PASSWORD" \
 		-p 8000:8000 \

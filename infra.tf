@@ -33,16 +33,6 @@ variable "openai_api_key" {
   sensitive = true
 }
 
-variable "stripe_api_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_webhook_signing_secret" {
-  type      = string
-  sensitive = true
-}
-
 variable "smtp_email_username" {
   type      = string
   sensitive = true
@@ -76,9 +66,6 @@ module "basic-deployment" {
 
   extra_env = {
     SESSION_SECRET                = random_password.secret_key.result
-    OPENAI_API_KEY                = var.openai_api_key
-    STRIPE_API_KEY                = var.stripe_api_key
-    STRIPE_WEBHOOK_SIGNING_SECRET = var.stripe_webhook_signing_secret
     SMTP_EMAIL_USERNAME           = "jdevries3133@gmail.com"
     SMTP_EMAIL_PASSWORD           = var.smtp_email_password
   }

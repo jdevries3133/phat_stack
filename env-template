@@ -14,20 +14,6 @@ SESSION_SECRET=superdupersecret
 POSTGRES_USER=you
 POSTGRES_PASSWORD=somepassword
 POSTGRES_DB=phat_stack
-OPENAI_API_KEY=<your api key goes here>
-STRIPE_API_KEY=<your api key goes here>
 
-### Stripe ###
-#
-# Note that in general, you can omit the stripe environment varaibles if you
-# do not enable the stripe feature. If you don't need stripe, you should
-# probably grep for `feature = "stripe"`, and rip out the stripe code!
-
-# The stripe CLI will print out the signing secret for development when you
-# run `make proxy-stripe-webhook`, and then you'll need to copy and paste it
-# here.
-STRIPE_WEBHOOK_SIGNING_SECRET=<your secret goes here>
 SMTP_EMAIL_USERNAME=<your secret goes here>
 SMTP_EMAIL_PASSWORD=<your secret goes here>
-
-### END Stripe
