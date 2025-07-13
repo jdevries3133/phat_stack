@@ -4,6 +4,7 @@ use axum::{http::StatusCode, response::IntoResponse};
 
 #[derive(Debug)]
 pub enum Oops {
+    AuthWrongPassword,
     Placeholder,
 }
 
@@ -15,7 +16,8 @@ impl Oops {
         match self {
             Self::Placeholder => {
                 Some("This is a placeholder. If it shows up in prod, someone forgot to finish what they were doing.")
-            }
+            },
+            _ => None
         }
     }
 }

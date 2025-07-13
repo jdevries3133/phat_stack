@@ -59,7 +59,7 @@ pub fn check(pw: &str, truth: &HashedPw) -> Result<()> {
         Ok(())
     } else {
         Err(Error::default()
-            .wrap(crate::err::Oops::Placeholder)
+            .wrap(crate::err::Oops::AuthWrongPassword)
             .because("wrong password".into())
             .bad_request())
     }
