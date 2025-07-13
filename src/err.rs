@@ -5,6 +5,8 @@ use axum::{http::StatusCode, response::IntoResponse};
 #[derive(Debug)]
 pub enum Oops {
     AuthWrongPassword,
+    /// An error from a third-party library.
+    ExternalError,
     Placeholder,
 }
 
@@ -94,8 +96,8 @@ impl Error {
 impl<T: std::error::Error> From<T> for Error {
     fn from(value: T) -> Self {
         Self::default()
-            .wrap(Oops::Placeholder)
-            .because(format!("outside error: {value:?}"))
+            .wrap(Oops::ExternalError)
+            .because(format!("external error: {value:?}"))
     }
 }
 
