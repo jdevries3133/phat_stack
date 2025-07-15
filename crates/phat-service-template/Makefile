@@ -75,14 +75,13 @@ dev: setup
 		"cargo watch -x 'run --features \"live_reload localhost_base_url\"'" \
 
 bootstrap: setup _stop-db
-	SQLX_OFFLINE=true cargo build
 	make _start-db
 	@sleep 1  # give the DB time to startup
 	@echo "===================================================================="
 	@echo "Bootstrap complete! The app is running now, but you need to stop it"
 	@echo "and run 'make dev' to get live-reloading started."
 	@echo "===================================================================="
-	$(ENV) ./target/debug/phat_stack
+	$(ENV) SQLX_OFFLINE=true cargo run
 
 deploy:
 ifdef CI

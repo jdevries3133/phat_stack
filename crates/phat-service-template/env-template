@@ -14,6 +14,3 @@ SESSION_SECRET=superdupersecret
 POSTGRES_USER=you
 POSTGRES_PASSWORD=somepassword
 POSTGRES_DB=phat_stack
-
-SMTP_EMAIL_USERNAME=<your secret goes here>
-SMTP_EMAIL_PASSWORD=<your secret goes here>
