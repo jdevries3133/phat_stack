@@ -10,4 +10,5 @@ then
     exit 1
 fi
 
+cd crates/phat-service-template
 exec make check
