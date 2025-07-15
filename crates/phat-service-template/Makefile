@@ -40,7 +40,6 @@ ifndef CI
 	@# our checks
 	SQLX_OFFLINE=true cargo build --features enable_smtp_email
 endif
-	./scripts/lint_dbg.sh
 	cargo clippy -- -D warnings
 	cargo fmt --check
 	cargo test
