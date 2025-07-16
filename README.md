@@ -4,35 +4,38 @@
 [Axum Web](https://github.com/tokio-rs/axum), and
 [Tailwind CSS](https://tailwindcss.com/)
 
-## Example Project
+# Project Status
 
-For a more in-depth project using this stack, see my [Notion
-clone](https://github.com/jdevries3133/nc).
+Originally, this project was a template app, with the idea that this repository
+could be forked and modified into a specific project. Look at the
+[`original-template`](https://github.com/jdevries3133/phat_stack/tree/original-template)
+tag to see the old template.
 
-I also built [beancount.bot](https://beancount.bot) with this stack, and the
-[repository is open source](https://github.com/jdevries3133/calcount) (though it
-has a restrictive license).
+Since
+[`7fa061b590f8c298de187eddf7e33375e3175889`](https://github.com/jdevries3133/phat_stack/commit/7fa061b590f8c298de187eddf7e33375e3175889),
+I'm moving towards a new approach where this project will become a
+`create-phat-app` CLI and an ecosystem of first-party "contrib-style" supporting
+libraries.
 
-## Benefits
+I'm planning for `create-phat-app` to be able to boilerplate-out the following
+variants;
 
-- app compiles to a very small statically linked musl binary, allowing super
-  fast time to deployment
-- SQLx provides type-safe SQL queries at compile time when using the `query_as!`
-  macro
-- DX with live-reloading is actually quite nice
-- there's a lot less complexity here compared to a typical React/Express stack
-  or similar, and even less compared to a Laraval/Django setup where you might
-  have an ORM and/or a templating language.
-- PWA-ready
-- support for anonymous users enables very low-friction conversion (see
-  [beancount.bot](https://beancount.bot) for a live example)
+| feature                        | bare-bones | minimal | moderate | heavy | superheavy |
+| ------------------------------ | ---------- | ------- | -------- | ----- | ---------- |
+| PHAT development environment   | ✅         | ✅      | ✅       | ✅    | ✅         |
+| PHAT production build          | ✅         | ✅      | ✅       | ✅    | ✅         |
+| `trait Component` abstraction  |            | ✅      | ✅       | ✅    | ✅         |
+| `enum Route` abstraction       |            | ✅      | ✅       | ✅    | ✅         |
+| `Dockerfile`                   |            | ✅      | ✅       | ✅    | ✅         |
+| todo app                       |            |         | ✅       | ✅    | ✅         |
+| GitHub workflows for CI/CD     |            |         | ✅       | ✅    | ✅         |
+| user registration & login      |            |         |          | ✅    | ✅         |
+| passkey auth                   |            |         |          | ✅    | ✅         |
+| transactional email (via SMTP) |            |         |          |       | ✅         |
+| stripe integration             |            |         |          |       | ✅         |
 
-## Bugs
-
-- There is a home-grown auth framework in here which I certainly use, but should
-  be audited by a security expert (see `mod session`, `mod auth`, `mod crypto`,
-  `mod pw`). It also has a fairly insecure JWT implementation which does not
-  support refresh tokens and uses long-lived JWTs.
-- I'm not using a templating library; implementers of `Component::render` need
-  to beware of XSS sanitization concerns, and call `ammonia::clean` for
-  user-provided strings.
+Containerization, GitHub workflows, transactional email, and Stripe integration
+will each be available as first-party "contrib-style" supporting libraries, and
+there won't be any points of coupling between them, so that those features can
+be mixed-and-matched. The `create-phat-app` will support granular mixing and
+matching.
