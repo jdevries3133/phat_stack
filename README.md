@@ -24,17 +24,17 @@ variants;
 | ------------------------------ | ---------- | ------- | -------- | ----- | ---------- |
 | PHAT development environment   | ✅         | ✅      | ✅       | ✅    | ✅         |
 | PHAT production build          | ✅         | ✅      | ✅       | ✅    | ✅         |
-| `trait Component` abstraction  |            | ✅      | ✅       | ✅    | ✅         |
-| `enum Route` abstraction       |            | ✅      | ✅       | ✅    | ✅         |
-| `Dockerfile`                   |            | ✅      | ✅       | ✅    | ✅         |
-| todo app                       |            |         | ✅       | ✅    | ✅         |
+| `enum Route`                   |            | ✅      | ✅       | ✅    | ✅         |
+| `trait Component`              |            | ✅      | ✅       | ✅    | ✅         |
+| opinionated error-handling     |            | ✅      | ✅       | ✅    | ✅         |
 | GitHub workflows for CI/CD     |            |         | ✅       | ✅    | ✅         |
-| user registration & login      |            |         |          | ✅    | ✅         |
+| todo app                       |            |         | ✅       | ✅    | ✅         |
 | passkey auth                   |            |         |          | ✅    | ✅         |
-| transactional email (via SMTP) |            |         |          |       | ✅         |
+| user registration & login      |            |         |          | ✅    | ✅         |
 | stripe integration             |            |         |          |       | ✅         |
+| transactional email (via SMTP) |            |         |          |       | ✅         |
 
 Containerization, GitHub workflows, transactional email, and Stripe integration
 will each be available as first-party "contrib-style" supporting libraries, and
 there won't be any points of coupling between them. The `create-phat-app` will
-support granular mixing and matching of these features/libraries. 
+support granular mixing and matching of these features/libraries.
