@@ -36,5 +36,5 @@ variants;
 
 Containerization, GitHub workflows, transactional email, and Stripe integration
 will each be available as first-party "contrib-style" supporting libraries, and
-there won't be any points of coupling between them. The `create-phat-app` will support granular mixing and
-matching of these features/libraries. 
+there won't be any points of coupling between them. The `create-phat-app` will
+support granular mixing and matching of these features/libraries. 
