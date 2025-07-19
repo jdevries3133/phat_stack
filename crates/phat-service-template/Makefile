@@ -54,7 +54,6 @@ build: setup
 	cargo build --release
 
 setup:
-	./scripts/download_htmx.sh
 ifdef CI
 	npm i -g pnpm
 endif

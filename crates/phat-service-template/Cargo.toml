@@ -9,6 +9,9 @@ live_reload = []
 enable_smtp_email = []
 localhost_base_url = []
 
+[build-dependencies]
+ureq = "3.0.12"
+
 [dependencies]
 ammonia = "3.3.0"
 async-trait = "0.1.73"
