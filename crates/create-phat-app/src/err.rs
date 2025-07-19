@@ -37,6 +37,10 @@ impl ErrStack {
             }],
         }
     }
+    pub fn push(mut self, err: ErrT) -> Self {
+        self.stack.push(StackFrame { err, ctx: None });
+        self
+    }
     pub fn ctx(mut self, ctx: String) -> Self {
         if let Some(last) = self.stack.last_mut() {
             last.ctx = Some(ctx);

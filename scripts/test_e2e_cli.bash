@@ -5,7 +5,7 @@ set -euxo pipefail
 tempdir="$(mktemp -d)"
 target="${tempdir}/new-create"
 mkdir -p "${target}"
-cargo run --bin cli -- \
+cargo run --bin create-phat-app -- \
     --name test \
     --location "${target}" \
     --base-template moderate

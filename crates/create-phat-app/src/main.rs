@@ -34,10 +34,15 @@ struct Args {
     base_template: templates::BaseTemplate,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn cli() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    let template_tarball = args.base_template.tarball()?;
+    let template_tarball = args.base_template.tarball().map_err(|e| {
+        e.push(ErrT::NotImplemented).ctx(format!(
+            r#"Base template "{:?}" not supported yet."#,
+            args.base_template
+        ))
+    })?;
     let tar = GzDecoder::new(template_tarball);
     let mut archive = Archive::new(tar);
     archive.unpack(&args.location)
@@ -50,4 +55,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })?;
 
     Ok(())
+}
+
+fn main() {
+    if let Err(e) = cli() {
+        print!("{e}");
+        std::process::exit(1);
+    }
 }

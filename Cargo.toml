@@ -1,3 +1,3 @@
 [workspace]
 resolver = "3"
-members = [ "crates/cli","crates/phat-service-template"]
+members = [ "crates/create-phat-app","crates/phat-service-template"]
