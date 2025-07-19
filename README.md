@@ -6,6 +6,9 @@
 
 # Project Status
 
+This is a hobby-project, but I'd be happy if others find it useful, and
+contributions are welcome.
+
 Originally, this project was a template app, with the idea that this repository
 could be forked and modified into a specific project. Look at the
 [`original-template`](https://github.com/jdevries3133/phat_stack/tree/original-template)
@@ -33,8 +36,18 @@ variants;
 | user registration & login      |            |         |          | ✅    | ✅         |
 | stripe integration             |            |         |          |       | ✅         |
 | transactional email (via SMTP) |            |         |          |       | ✅         |
+| oauth2 client & server         |            |         |          |       | ✅         |
 
-Containerization, GitHub workflows, transactional email, and Stripe integration
-will each be available as first-party "contrib-style" supporting libraries, and
-there won't be any points of coupling between them. The `create-phat-app` will
-support granular mixing and matching of these features/libraries.
+The "moderate," base-template is essentially the
+[`original-template`](https://github.com/jdevries3133/phat_stack/tree/original-template).
+At least, the parts of the original template I intend to keep. Minimal and
+bare-bones templates will be derived from the moderate template, simply by
+deleting stuff.
+
+Features of the heavy and superheavy templates will each be available as
+first-party "contrib-style," supporting libraries. This includes
+Containerization, GitHub workflows, transactional email, Stripe integration, and
+Oauth2. There won't be any points of coupling between each of these. The
+`create-phat-app` CLI will support granular mixing and matching of these
+features/libraries. They will also be distributed as standalone Rust crates, so
+they can always be added to a project later or even used standalone.
