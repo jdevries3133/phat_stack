@@ -23,20 +23,18 @@ fn main() {
             .read_to_string()
             .expect("can read HTMX source as a string");
 
+        let digest_result =
+            digest::digest(&digest::SHA256, htmx_source.as_bytes());
+        let actual_checksum =
+            hex::encode(digest_result.as_ref()).to_lowercase();
+
+        if actual_checksum != HTMX_CHECKSUM {
+            panic!(
+                "HTMX checksum mismatch!\nExpected: {HTMX_CHECKSUM}\nActual: {actual_checksum}"
+            );
+        }
+
         fs::write(&htmx_file, &htmx_source).expect("Failed to write HTMX file");
-    }
-
-    let file_contents = fs::read(&htmx_file)
-        .expect("Failed to read HTMX file for checksum calculation");
-
-    let digest_result = digest::digest(&digest::SHA256, &file_contents);
-    let actual_checksum = hex::encode(digest_result.as_ref()).to_lowercase();
-
-    if actual_checksum != HTMX_CHECKSUM {
-        let _ = fs::remove_file(&htmx_file);
-        panic!(
-            "HTMX checksum mismatch!\nExpected: {HTMX_CHECKSUM}\nActual: {actual_checksum}"
-        );
     }
     println!("cargo:rerun-if-changed={htmx_file}");
 }
