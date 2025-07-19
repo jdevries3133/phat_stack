@@ -11,6 +11,8 @@ localhost_base_url = []
 
 [build-dependencies]
 ureq = "3.0.12"
+aws-lc-rs = "1.10.0"
+hex = "0.4.3"
 
 [dependencies]
 ammonia = "3.3.0"

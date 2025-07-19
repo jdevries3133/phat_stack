@@ -1,4 +1,5 @@
-use std::{fs, path::Path, process::Command};
+use aws_lc_rs::digest;
+use std::{fs, path::Path};
 
 const HTMX_VERSION: &str = "2.0.2";
 const HTMX_CHECKSUM: &str =
@@ -25,20 +26,11 @@ fn main() {
         fs::write(&htmx_file, &htmx_source).expect("Failed to write HTMX file");
     }
 
-    let output = Command::new("openssl")
-        .args(["dgst", "-sha256", "-hex", &htmx_file])
-        .output()
-        .expect("Failed to execute openssl command");
+    let file_contents = fs::read(&htmx_file)
+        .expect("Failed to read HTMX file for checksum calculation");
 
-    if !output.status.success() {
-        panic!("Failed to calculate checksum for {htmx_file}");
-    }
-
-    let checksum_output = String::from_utf8(output.stdout)
-        .expect("Invalid UTF-8 in checksum output");
-
-    let actual_checksum =
-        checksum_output.split('=').nth(1).unwrap_or("").trim();
+    let digest_result = digest::digest(&digest::SHA256, &file_contents);
+    let actual_checksum = hex::encode(digest_result.as_ref()).to_lowercase();
 
     if actual_checksum != HTMX_CHECKSUM {
         let _ = fs::remove_file(&htmx_file);
