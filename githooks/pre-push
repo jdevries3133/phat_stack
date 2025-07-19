@@ -15,4 +15,8 @@ set -e
 
 ./scripts/lint_dbg.sh
 cd crates/phat-service-template
-exec make check
+SKIP_CARGO=1 make check
+cd -
+cargo clippy -- -D warnings
+cargo fmt --check
+cargo test

@@ -40,9 +40,11 @@ ifndef CI
 	@# our checks
 	SQLX_OFFLINE=true cargo build --features enable_smtp_email
 endif
+ifndef SKIP_CARGO
 	cargo clippy -- -D warnings
 	cargo fmt --check
 	cargo test
+endif
 
 sqlx:
 	cargo sqlx prepare -- --features enable_smtp_email
