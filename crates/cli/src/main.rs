@@ -1,7 +1,12 @@
 use clap::{Parser, ValueEnum};
+use flate2::read::GzDecoder;
 use std::path::PathBuf;
+use tar::Archive;
 
+mod err;
 mod templates;
+
+use err::*;
 
 #[derive(ValueEnum, Clone, Debug)]
 enum FeatureFlags {
@@ -30,9 +35,19 @@ struct Args {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let args = Args::parse();
+    let args = Args::parse();
 
-    templates::puke_template();
+    let template_tarball = args.base_template.tarball()?;
+    let tar = GzDecoder::new(template_tarball);
+    let mut archive = Archive::new(tar);
+    archive.unpack(&args.location)
+        .map_err(|e| {
+            ErrStack::new(ErrT::TarUnarchive).ctx(format!(
+                "Failed to unpack template tarball into desired location. Desired location was {:?}. Error was: {}",
+                &args.location,
+                e
+            ))
+        })?;
 
     Ok(())
 }

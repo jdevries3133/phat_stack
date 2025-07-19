@@ -1,7 +1,7 @@
 use flate2::{Compression, write::GzEncoder};
 use std::{
     env::{current_dir, var},
-    fs::File,
+    fs::{File, remove_dir_all},
     path::Path,
 };
 
@@ -16,6 +16,10 @@ fn main() {
             "cargo::error=cannot find phat-service-template at path {template_dir:?}"
         );
         return;
+    }
+    let node_modules = template_dir.join("node_modules");
+    if node_modules.exists() {
+        remove_dir_all(&node_modules).expect("removed node_modules from template dir to avoid packaging into CLI");
     }
     let out_dir = var("OUT_DIR").expect("OUT_DIR is set");
     let workdir = Path::new(&out_dir);
