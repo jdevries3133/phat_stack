@@ -1,6 +1,6 @@
 use clap::{Parser, ValueEnum};
 use flate2::read::GzDecoder;
-use std::path::PathBuf;
+use std::{fs::read_dir, path::PathBuf};
 use tar::Archive;
 
 mod err;
@@ -36,6 +36,8 @@ struct Args {
 
 fn cli() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
+    let location_utf8 =
+        args.location.to_str().unwrap_or("(location is not utf-8)");
 
     let template_tarball = args.base_template.tarball().map_err(|e| {
         e.push(ErrT::NotImplemented).ctx(format!(
@@ -43,6 +45,47 @@ fn cli() -> Result<(), Box<dyn std::error::Error>> {
             args.base_template
         ))
     })?;
+
+    if !args.location.is_dir() {
+        return Err(ErrStack::new(ErrT::ValidationError)
+            .ctx(format!("Location {location_utf8} is not a directory"))
+            .into());
+    };
+
+    let num_items = read_dir(&args.location)
+        .map_err(|e| {
+            ErrStack::io(e)
+                .ctx(format!("while checking if {location_utf8} is empty"))
+        })?
+        .try_fold(Vec::new(), |mut acc, item| match item {
+            Ok(item) => {
+                acc.push(item.file_name());
+                Ok(acc)
+            }
+            Err(e) => Err(ErrStack::io(e).ctx(format!(
+                "on one item while checking if {location_utf8} is empty"
+            ))),
+        })?;
+    if !num_items.is_empty() {
+        return Err(ErrStack::new(ErrT::ValidationError)
+            .ctx(format!(
+                "{} is not an empty directory. Contains items: {}",
+                location_utf8,
+                num_items
+                    .iter()
+                    .map(|item| item.to_str().unwrap_or("(not utf-8)"))
+                    .fold(String::new(), |mut acc, item| {
+                        if !acc.is_empty() {
+                            acc.push(',');
+                            acc.push(' ');
+                        }
+                        acc.push_str(item);
+                        acc
+                    })
+            ))
+            .into());
+    }
+
     let tar = GzDecoder::new(template_tarball);
     let mut archive = Archive::new(tar);
     archive.unpack(&args.location)

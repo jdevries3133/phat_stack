@@ -1,15 +1,18 @@
 #[derive(Debug)]
 pub enum ErrT {
     NotImplemented,
+    Stdio(std::io::Error),
     TarUnarchive,
+    ValidationError,
 }
 
 impl ErrT {
-    fn explain(&self) -> Option<&'static str> {
+    fn explain(&self) -> Option<String> {
         match self {
             Self::NotImplemented => {
-                Some("This feature has not been implemented yet.")
+                Some("This feature has not been implemented yet.".into())
             }
+            ErrT::Stdio(e) => Some(format!("std::io::Error: {e}")),
             _ => None,
         }
     }
@@ -36,6 +39,9 @@ impl ErrStack {
                 ctx: None,
             }],
         }
+    }
+    pub fn io(io_err: std::io::Error) -> Self {
+        Self::new(ErrT::Stdio(io_err))
     }
     pub fn push(mut self, err: ErrT) -> Self {
         self.stack.push(StackFrame { err, ctx: None });
