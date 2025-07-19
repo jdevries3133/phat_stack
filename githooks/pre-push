@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -uxo pipefail
 # This will disallow pushing with a dirty working tree, which also ensures
 # that the pre-push checks run against the same code which is being pushed.
 git diff-index --quiet HEAD --
@@ -9,6 +10,8 @@ then
     echo "Try 'git stash' before 'git push'."
     exit 1
 fi
+
+set -e
 
 ./scripts/lint_dbg.sh
 cd crates/phat-service-template
