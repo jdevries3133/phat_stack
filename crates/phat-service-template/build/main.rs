@@ -1,15 +1,14 @@
 use aws_lc_rs::digest;
 use std::{fs, path::Path};
 
-const HTMX_VERSION: &str = "2.0.2";
-const HTMX_CHECKSUM: &str =
-    "e1746d9759ec0d43c5c284452333a310bb5fd7285ebac4b2dc9bf44d72b5a887";
+mod config;
 
 fn main() {
-    let htmx_file = format!("src/htmx-{HTMX_VERSION}.vendor.js");
+    let htmx_file = format!("src/htmx-{}.vendor.js", config::HTMX_VERSION);
 
     if !Path::new(&htmx_file).exists() {
-        let url = format!("https://unpkg.com/htmx.org@{HTMX_VERSION}");
+        let url =
+            format!("https://unpkg.com/htmx.org@{}", config::HTMX_VERSION);
         let mut response =
             ureq::get(&url).call().expect("can fetch htmx from unpkg");
         if response.status() != ureq::http::StatusCode::OK {
@@ -28,9 +27,11 @@ fn main() {
         let actual_checksum =
             hex::encode(digest_result.as_ref()).to_lowercase();
 
-        if actual_checksum != HTMX_CHECKSUM {
+        if actual_checksum != config::HTMX_CHECKSUM {
             panic!(
-                "HTMX checksum mismatch!\nExpected: {HTMX_CHECKSUM}\nActual: {actual_checksum}"
+                "HTMX checksum mismatch!\nExpected: {}\nActual: {}",
+                config::HTMX_CHECKSUM,
+                actual_checksum
             );
         }
 
