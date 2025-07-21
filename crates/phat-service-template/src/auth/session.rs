@@ -5,7 +5,7 @@ use crate::{
     err::{Error, Oops, Result},
 };
 use axum::http::{HeaderMap, HeaderValue};
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _, engine::general_purpose};
 use chrono::{DateTime, Days, Utc};
 use chrono_tz::Tz;
 use regex::Regex;

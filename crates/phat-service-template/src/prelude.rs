@@ -15,4 +15,4 @@ pub use axum::{
 };
 pub use chrono::prelude::*;
 pub use serde::Deserialize;
-pub use sqlx::{query, query_as, PgExecutor};
+pub use sqlx::{PgExecutor, query, query_as};

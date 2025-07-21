@@ -11,8 +11,8 @@ use crate::err::Result;
 #[allow(unused_imports)]
 #[cfg(feature = "enable_smtp_email")]
 use lettre::{
-    message::header::ContentType, transport::smtp::authentication::Credentials,
     AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
+    message::header::ContentType, transport::smtp::authentication::Credentials,
 };
 #[allow(unused_imports)]
 #[cfg(feature = "enable_smtp_email")]
@@ -47,7 +47,9 @@ pub async fn send_email(to: &str, subject: &str, msg: &str) -> Result<()> {
 
 #[cfg(not(feature = "enable_smtp_email"))]
 pub async fn send_email(to: &str, subject: &str, msg: &str) -> Result<()> {
-    println!("Would send email:\n\tTo: {to}\n\tSubject: {subject}\n\tBody:\n{msg}\n===\n");
+    println!(
+        "Would send email:\n\tTo: {to}\n\tSubject: {subject}\n\tBody:\n{msg}\n===\n"
+    );
 
     Ok(())
 }

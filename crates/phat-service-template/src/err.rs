@@ -16,10 +16,10 @@ impl Oops {
     /// instead of needing to use [Error::because] all over the place.
     pub fn explain(&self) -> Option<&'static str> {
         match self {
-            Self::Placeholder => {
-                Some("This is a placeholder. If it shows up in prod, someone forgot to finish what they were doing.")
-            },
-            _ => None
+            Self::Placeholder => Some(
+                "This is a placeholder. If it shows up in prod, someone forgot to finish what they were doing.",
+            ),
+            _ => None,
         }
     }
 }

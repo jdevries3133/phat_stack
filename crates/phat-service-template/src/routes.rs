@@ -3,7 +3,7 @@
 use super::{auth, controllers, legal, middleware, models};
 use axum::{
     middleware::from_fn,
-    routing::{get, post, Router},
+    routing::{Router, get, post},
 };
 
 /// This enum contains all of the route strings in the application. This

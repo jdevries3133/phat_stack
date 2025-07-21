@@ -27,16 +27,15 @@ pub async fn html_headers(request: Request<Body>, next: Next) -> Response {
     let headers = response.headers_mut();
 
     // Set content-type to text/html unless otherwise specified
-    if let Some(content_type) = headers.get("content-type") {
-        if content_type.to_str().expect("header is ascii")
+    if let Some(content_type) = headers.get("content-type")
+        && content_type.to_str().expect("header is ascii")
             == "text/plain; charset=utf-8"
-        {
-            headers.remove("content-type");
-            headers.insert(
-                "content-type",
-                HeaderValue::from_str("text/html").expect("text/html is ascii"),
-            );
-        }
+    {
+        headers.remove("content-type");
+        headers.insert(
+            "content-type",
+            HeaderValue::from_str("text/html").expect("text/html is ascii"),
+        );
     }
     // Set Cache-Control: no-cache unless otherwise specified. Most endpoints
     // return HTML interpolated with user data which is liable to change all
@@ -89,7 +88,9 @@ pub async fn auth(request: Request<Body>, next: Next) -> Response {
             let end = Utc::now().with_timezone(&Tz::US__Eastern);
             let duration = (end - start).num_milliseconds();
             let stat = response.status();
-            println!("[{end}] {method} {uri} => {stat} in {duration}ms from {username}");
+            println!(
+                "[{end}] {method} {uri} => {stat} in {duration}ms from {username}"
+            );
             response
         } else {
             (response_headers(), Redirect::to(&Route::Login.to_string()))

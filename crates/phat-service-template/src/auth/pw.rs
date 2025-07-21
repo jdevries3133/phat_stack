@@ -7,7 +7,7 @@
 //! welcome!
 
 use crate::err::{Error, Result};
-use base64::{engine::general_purpose, Engine};
+use base64::{Engine, engine::general_purpose};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 

@@ -2,7 +2,7 @@
 //! Auth will authenticate users by fetching user info from the database and
 //! authenticating a user with the provided credentials.
 
-use super::{pw, Session};
+use super::{Session, pw};
 use crate::{
     db_ops::{self, GetModel},
     err::{Error, Result},
