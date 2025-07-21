@@ -54,12 +54,6 @@ build: setup
 	cargo build --release
 
 setup:
-ifdef CI
-	npm i -g pnpm
-endif
-	[[ ! -d node_modules ]] \
-		&& pnpm install \
-		|| true
 ifndef CI
 	@# we only want the `.env` file locally in practice. We never run the app
 	@# in CI (yet). The problem with having the `.env` file in CI is that
@@ -70,9 +64,7 @@ ifndef CI
 endif
 
 dev: setup
-	npx concurrently --names 'tailwind,cargo' \
-		'pnpm run dev' \
-		"cargo watch -x 'run --features \"live_reload localhost_base_url\"'" \
+	cargo watch -x 'run --features live_reload localhost_base_url'
 
 bootstrap: setup _stop-db
 	make _start-db

@@ -1,9 +1,11 @@
+#![feature(exit_status_error)]
+
 use aws_lc_rs::digest;
-use std::{fs, path::Path};
+use std::{fs, io::ErrorKind, path::Path, process, thread};
 
 mod config;
 
-fn main() {
+fn download_htmx() {
     let htmx_file = format!("src/htmx-{}.vendor.js", config::HTMX_VERSION);
 
     if !Path::new(&htmx_file).exists() {
@@ -37,5 +39,65 @@ fn main() {
 
         fs::write(&htmx_file, &htmx_source).expect("Failed to write HTMX file");
     }
-    println!("cargo:rerun-if-changed={htmx_file}");
+}
+
+fn download_node_modules() {
+    if Path::new("node_modules").exists() {
+        return;
+    }
+    let spawn_result = process::Command::new("pnpm")
+        .arg("install")
+        .arg("--frozen-lockfile")
+        .spawn();
+
+    match spawn_result {
+        Err(e) => {
+            if e.kind() == ErrorKind::NotFound {
+                println!(
+                    "cargo::error=pnpm CLI not found on your machine. Is it installed?"
+                );
+            } else {
+                println!(concat!(
+                    "cargo::error=pnpm install --frozen-lockfile failed for an ",
+                    "unknown reason. Try running this command and looking into ",
+                    "possible issues with your Node.js environment."
+                ));
+            }
+        }
+        Ok(mut process) => {
+            if process
+                .wait()
+                .expect("can wait for install result")
+                .exit_ok()
+                .is_err()
+            {
+                println!("cargo::error=pnpm install --frozen-lockfile failed");
+            }
+        }
+    }
+}
+
+fn do_node_build() {
+    process::Command::new("pnpm")
+        .arg("run")
+        .arg("build")
+        .spawn()
+        .expect("can spawn pnpm run build")
+        .wait()
+        .expect("can wait on pnpm run build")
+        .exit_ok()
+        .expect("pnpm run build succeeded.");
+}
+
+fn main() {
+    let htmx_handle = thread::spawn(download_htmx);
+    let node_modules_handle = thread::spawn(download_node_modules);
+
+    node_modules_handle
+        .join()
+        .expect("node_modules thread does not panic");
+
+    do_node_build();
+
+    htmx_handle.join().expect("htmx thread does not panic");
 }
