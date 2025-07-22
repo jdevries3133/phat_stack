@@ -15,7 +15,6 @@ CONTAINER_EXACT_REF=$(DOCKER_ACCOUNT)/$(PROJECT_NAME):$(TAG)
 .PHONY: _start-db
 .PHONY: _stop-db
 .PHONY: backup-prod
-.PHONY: bootstrap
 .PHONY: build
 .PHONY: build-container
 .PHONY: check
@@ -62,18 +61,6 @@ ifndef CI
 	@# See also https://github.com/launchbadge/sqlx/blob/540baf7df55a372cb79d8636d02b1361a495b344/sqlx-cli/README.md#force-building-in-offline-mode
 	[[ ! -f .env ]] && cp env-template .env || true
 endif
-
-dev: setup
-	cargo watch -x 'run --features live_reload localhost_base_url'
-
-bootstrap: setup _stop-db
-	make _start-db
-	@sleep 1  # give the DB time to startup
-	@echo "===================================================================="
-	@echo "Bootstrap complete! The app is running now, but you need to stop it"
-	@echo "and run 'make dev' to get live-reloading started."
-	@echo "===================================================================="
-	$(ENV) SQLX_OFFLINE=true cargo run
 
 deploy:
 ifdef CI
