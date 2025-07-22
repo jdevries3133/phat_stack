@@ -116,10 +116,18 @@ test_bootstrap() {
     fi
 }
 
+test_start_stop_db() {
+    test_script_meta_before
+    ./scripts/start_development_database.bash
+    ./scripts/stop_development_database.bash
+    test_script_meta_after
+}
+
 main() {
     test_clippy
     test_unittest
     test_bootstrap
+    test_start_stop_db
 }
 
 main
