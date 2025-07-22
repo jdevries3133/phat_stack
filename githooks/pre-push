@@ -13,10 +13,8 @@ fi
 
 set -e
 
-./scripts/lint_dbg.sh
-cd crates/phat-service-template
-SKIP_CARGO=1 make check
-cd -
 cargo clippy -- -D warnings
 cargo fmt --check
 cargo test
+./scripts/lint_dbg.sh
+./scripts/test_e2e_cli.bash
