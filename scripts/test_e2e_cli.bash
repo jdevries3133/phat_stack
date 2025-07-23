@@ -123,11 +123,24 @@ test_start_stop_db() {
     test_script_meta_after
 }
 
+# DEPENDENCY: test_bootstrap
+test_build_container() {
+    test_script_meta_before
+    ./scripts/_build_x86_64_unknown-linux-musl.bash
+    mkdir -p target/x86_64-unknown-linux-musl/release
+    mv \
+        "${CARGO_TARGET_DIR}/x86_64-unknown-linux-musl/release/phat_stack" \
+        target/x86_64-unknown-linux-musl/release/phat_stack
+    ./scripts/_build_x86_64_container.bash
+    test_script_meta_after
+}
+
 main() {
     test_clippy
     test_unittest
-    test_bootstrap
     test_start_stop_db
+    test_bootstrap
+    test_build_container
 }
 
 main
