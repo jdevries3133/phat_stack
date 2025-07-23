@@ -10,13 +10,17 @@ tempdir=""
 target=""
 
 docker ps -aq | xargs docker rm -f
-set +o pipefail
-lsof -i -P -n \
-    | grep LISTEN \
-    | grep 8000 \
-    | awk '{ print $2 }' \
-    | xargs --no-run-if-empty kill
-set -o pipefail
+
+cleanup_phat_port() {
+    set +o pipefail
+    lsof -i -P -n \
+        | grep LISTEN \
+        | grep 8000 \
+        | awk '{ print $2 }' \
+        | xargs --no-run-if-empty kill
+    set -o pipefail
+}
+cleanup_phat_port
 
 test_setup() {
     tempdir="$(mktemp -d)"
@@ -110,6 +114,7 @@ test_bootstrap() {
     wait "$boot_pid"
     set -e
     test_script_meta_after
+    cleanup_phat_port
     if [ "$feeling" = "sad" ]
     then
         return 1
@@ -135,12 +140,45 @@ test_build_container() {
     test_script_meta_after
 }
 
+# DEPENDENCY: test_bootstrap
+test_develop() {
+    test_script_meta_before
+    ./scripts/develop.bash 2>&1 > dev_out &
+    dev_pid="$!"
+
+    feeling="happy"
+    tries=0
+    while [ -z "$(grep "listening on 0.0.0.0:8000" dev_out)" ]
+    do
+        tries=$((tries+1))
+        if [[ "$tries" -gt 10 ]]
+        then
+            feeling="sad"
+            break
+        fi
+        echo "waiting for dev startup..."
+        sleep 1
+    done
+    kill "$dev_pid"
+    set +e
+    wait "$dev_pid"
+    set -e
+    cleanup_phat_port
+    test_script_meta_after
+    if [ "$feeling" = "sad" ]
+    then
+        return 1
+    fi
+}
+
 main() {
     test_clippy
     test_unittest
     test_start_stop_db
     test_bootstrap
     test_build_container
+    test_develop
+    echo "✅ tests passed"
 }
 
 main
