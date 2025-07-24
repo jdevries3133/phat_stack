@@ -93,7 +93,7 @@ test_script_meta_after() {
 
 test_bootstrap() {
     test_script_meta_before
-    ./scripts/bootstrap.bash 2>&1 > boot_out &
+    ./scripts/bootstrap.bash > boot_out 2>&1 &
     boot_pid="$!"
 
     feeling="happy"
@@ -124,6 +124,8 @@ test_bootstrap() {
 test_start_stop_db() {
     test_script_meta_before
     ./scripts/start_development_database.bash
+    echo 'select 1' > script.sql
+    ./scripts/shell_development_database.bash -f script.sql
     ./scripts/stop_development_database.bash
     test_script_meta_after
 }
