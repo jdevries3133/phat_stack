@@ -13,8 +13,10 @@ fi
 
 set -e
 
+export SQLX_OFFLINE=true
 cargo clippy -- -D warnings
 cargo fmt --check
 cargo test
 ./scripts/lint_dbg.sh
+unset SQLX_OFFLINE
 ./scripts/test_e2e_cli.bash
