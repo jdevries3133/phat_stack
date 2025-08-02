@@ -30,4 +30,6 @@ fn main() {
     tar.append_dir_all(".", template_dir)
         .expect("can append_dir_all template tarball");
     tar.finish().expect("can finish template tarball");
+    println!("cargo::rerun-if-changed=**/*");
+    println!("cargo::rerun-if-changed=../phat-service-template/**/*");
 }
