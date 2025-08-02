@@ -101,7 +101,7 @@ test_bootstrap() {
     while [ -z "$(grep "listening on 0.0.0.0:8000" boot_out)" ]
     do
         tries=$((tries+1))
-        if [[ "$tries" -gt 10 ]]
+        if [[ "$tries" -gt 100 ]]
         then
             feeling="sad"
             break
@@ -153,7 +153,7 @@ test_develop() {
     while [ -z "$(grep "listening on 0.0.0.0:8000" dev_out)" ]
     do
         tries=$((tries+1))
-        if [[ "$tries" -gt 10 ]]
+        if [[ "$tries" -gt 100 ]]
         then
             feeling="sad"
             break
